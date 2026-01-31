@@ -36,33 +36,39 @@ public class EnemySpawner : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        // Clean up null references in case enemies were destroyed
         spawnedEnemies.RemoveAll(e => e == null);
 
-        // Check if we reached the maximum number of enemies
         if (spawnedEnemies.Count >= maxEnemies)
             return;
 
-        // Determine which enemy to spawn based on chance
-        float randomValue = Random.value; // 0 to 1
-        GameObject enemyToSpawn = null;
+        float randomValue = Random.value; 
+        GameObject enemyToSpawn;
 
+        // By using a final 'else', we guarantee enemyType3 spawns 
+        // if the value is above the first two thresholds.
         if (randomValue < chanceEnemy1)
+        {
             enemyToSpawn = enemyType1;
-        else if (randomValue < chanceEnemy1 + chanceEnemy2)
+        }
+        else if (randomValue < (chanceEnemy1 + chanceEnemy2))
+        {
             enemyToSpawn = enemyType2;
-        else if (randomValue < chanceEnemy1 + chanceEnemy2 + chanceEnemy3)
+        }
+        else 
+        {
             enemyToSpawn = enemyType3;
+        }
 
-        if (enemyToSpawn == null)
-            return; // fallback, no enemy selected
+        if (enemyToSpawn == null) return;
 
-        // Determine a random position around the player
+        // Position logic...
         Vector2 randomCircle = Random.insideUnitCircle.normalized;
         float distance = Random.Range(minSpawnDistance, maxSpawnDistance);
+        
+        // Use the player's position if this script is on the player, 
+        // or a specific player reference.
         Vector3 spawnPosition = transform.position + new Vector3(randomCircle.x, 0, randomCircle.y) * distance;
 
-        // Spawn the enemy
         GameObject spawned = Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
         spawnedEnemies.Add(spawned);
     }

@@ -30,6 +30,16 @@ public class EnemyPyramid : MonoBehaviour
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
         rend = GetComponent<Renderer>();
+        
+        // Auto-find player if not assigned
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.Find("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+        }
     }
 
     private void Start()
