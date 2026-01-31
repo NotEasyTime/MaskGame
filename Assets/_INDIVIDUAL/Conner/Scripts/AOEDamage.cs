@@ -5,11 +5,12 @@ public class AOEDamage : MonoBehaviour
 {
     [SerializeField] private int damage = 20;
     [SerializeField] private float lifetime = 2f;
+    [SerializeField] private float damageRadius = 3f;
 
     private void Start()
     {
-        // Damage player immediately if in trigger
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, GetComponent<SphereCollider>()?.radius ?? 1f);
+        // Damage player immediately if in range
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, damageRadius);
         
         foreach (Collider col in hitColliders)
         {

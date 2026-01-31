@@ -6016,6 +6016,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 156614525989543637, guid: 9580e5bd7c6bb401d93bbb6cd2d2b5bf, type: 3}
+      propertyPath: enemyType2
+      value: 
+      objectReference: {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
+    - target: {fileID: 156614525989543637, guid: 9580e5bd7c6bb401d93bbb6cd2d2b5bf, type: 3}
       propertyPath: enemyType3
       value: 
       objectReference: {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
