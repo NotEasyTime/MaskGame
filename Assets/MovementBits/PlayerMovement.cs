@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     public float airMultiplier = 0.4f;
 
     [Header("Air Control")]
-    public float airBrakeForce = 20f;
+    public float strafeIntensity = 5f; 
     
     [Header("Jumping & Gravity")]
     public float jumpForce = 12f;
@@ -43,11 +43,8 @@ public class PlayerMovement : MonoBehaviour
     public void OnJump(InputValue value) { if (value.isPressed && isGrounded) Jump(); }
     public void OnSprint(InputValue value) => isSprinting = value.isPressed;
 
-
     private void OnCollisionStay(Collision collision)
     {
-        // Check if we are colliding with something below us (normal.y > 0.5)
-        // This prevents "grounding" yourself by walking into a wall
         foreach (ContactPoint contact in collision.contacts)
         {
             if (contact.normal.y > 0.6f) 
@@ -58,15 +55,22 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        isGrounded = false;
-    }
+    private void OnCollisionExit(Collision collision) => isGrounded = false;
 
-    // --- Core Logic ---
     void Update()
     {
-        rb.linearDamping = isGrounded ? groundDrag : 0f;
+        // MOMENTUM PRESERVATION: 
+        // If we are grounded but moving/pressing keys, reduce drag to allow sliding/momentum.
+        // If we stop pressing keys, apply full drag to stop the player.
+        if (isGrounded)
+        {
+            rb.linearDamping = (moveInput.magnitude > 0.1f) ? groundDrag * 0.2f : groundDrag;
+        }
+        else
+        {
+            rb.linearDamping = 0f;
+        }
+
         HandleFOV();
     }
 
@@ -75,32 +79,37 @@ public class PlayerMovement : MonoBehaviour
         MovePlayer();
         SpeedControl();
         ApplyCustomGravity();
-        
-        // Safety: If no collisions are active, OnCollisionStay won't run.
-        // We don't want to be "stuck" grounded if we fly off a ramp.
     }
 
     void MovePlayer()
     {
         Vector3 moveDir = transform.forward * moveInput.y + transform.right * moveInput.x;
-        float currentForce = (isSprinting && moveInput.magnitude > 0) ? sprintSpeed : walkSpeed;
+        Vector3 currentHorizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        float currentMax = (isSprinting && moveInput.magnitude > 0) ? maxSprintSpeed : maxWalkSpeed;
 
         if (isGrounded)
         {
-            rb.AddForce(moveDir.normalized * currentForce, ForceMode.Force);
+            // Allow force application only if we aren't already exceeding the speed cap in that direction
+            float speedInInputDirection = Vector3.Dot(currentHorizontalVel, moveDir.normalized);
+            
+            if (speedInInputDirection < currentMax)
+            {
+                rb.AddForce(moveDir.normalized * (isSprinting ? sprintSpeed : walkSpeed), ForceMode.Force);
+            }
         }
         else
         {
-            Vector3 airForce = moveDir.normalized * currentForce * airMultiplier;
-            Vector3 currentHorizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        
-            if (moveInput.magnitude > 0 && currentHorizontalVel.magnitude > 0.1f)
+            // Air Logic
+            float speedInInputDirection = Vector3.Dot(currentHorizontalVel, moveDir.normalized);
+            if (speedInInputDirection < currentMax)
             {
-                float lookComparison = Vector3.Dot(currentHorizontalVel.normalized, moveDir.normalized);
-                if (lookComparison < 0) airForce += moveDir.normalized * airBrakeForce;
+                rb.AddForce(moveDir.normalized * walkSpeed * airMultiplier, ForceMode.Force);
             }
 
-            rb.AddForce(airForce, ForceMode.Force);
+            if (moveInput.magnitude > 0 && currentHorizontalVel.magnitude > 0.1f)
+            {
+                ApplyAirStrafing(moveDir, currentHorizontalVel);
+            }
         }
     }
 
@@ -109,18 +118,27 @@ public class PlayerMovement : MonoBehaviour
         Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         float currentMax = (isSprinting && moveInput.magnitude > 0) ? maxSprintSpeed : maxWalkSpeed;
 
-        if (flatVel.magnitude > currentMax)
+        // MOMENTUM PRESERVATION:
+        // Only hard-clamp speed if the player is NOT pressing any input.
+        // If they ARE pressing input, we let them keep their excess speed (e.g., from a fall or explosion).
+        if (moveInput.magnitude == 0 && flatVel.magnitude > currentMax)
         {
-            Vector3 limitedVel = flatVel.normalized * currentMax;
-            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            Vector3 brakeForce = -flatVel.normalized * groundDrag;
+            rb.AddForce(brakeForce, ForceMode.Acceleration);
         }
+    }
+
+    void ApplyAirStrafing(Vector3 moveDir, Vector3 currentHorizontalVel)
+    {
+        Vector3 targetVelocity = moveDir * currentHorizontalVel.magnitude;
+        Vector3 velocityDiff = targetVelocity - currentHorizontalVel;
+        rb.AddForce(velocityDiff * strafeIntensity, ForceMode.Acceleration);
     }
 
     void HandleFOV()
     {
         if (playerCamera == null) return;
-        bool isMoving = moveInput.magnitude > 0.1f;
-        float targetFOV = (isSprinting && isMoving) ? sprintFOV : baseFOV;
+        float targetFOV = (isSprinting && moveInput.magnitude > 0.1f) ? sprintFOV : baseFOV;
         playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, targetFOV, Time.deltaTime * fovLerpSpeed);
     }
 
@@ -128,8 +146,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
-        isGrounded = false; // Manually unset grounded so we don't double jump instantly
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        isGrounded = false;
+        // Notice: We don't zero out horizontal velocity here, preserving the speed you had.
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 }
