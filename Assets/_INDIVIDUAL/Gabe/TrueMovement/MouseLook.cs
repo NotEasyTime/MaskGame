@@ -11,8 +11,7 @@ public class MouseLook : MonoBehaviour
     public float mouseSensitivity = 0.1f;
     [Range(0, 0.99f)] public float positionSmoothing = 0.2f; 
     public float eyeHeight = 1.6f;
-
-    // We store these as private floats to maintain high precision
+    
     private float xRotation = 0f;
     private float yRotation = 0f;
     private Vector2 lookBuffer;
@@ -24,7 +23,6 @@ public class MouseLook : MonoBehaviour
         if (cameraPivot != null)
         {
             cameraPivot.SetParent(null);
-            // Initialize rotation values to match current player state
             yRotation = playerBody.eulerAngles.y;
         }
     }
@@ -54,8 +52,6 @@ public class MouseLook : MonoBehaviour
         // 3. SMOOTH POSITION (The "Anti-Jitter" step)
         Vector3 targetPos = playerBody.position + (Vector3.up * eyeHeight);
         
-        // If it still feels "grid-like" when moving, lower this lerp speed
-        // or set it to 1f (no smoothing) to see if the grid is in the rotation or position
         cameraPivot.position = Vector3.Lerp(cameraPivot.position, targetPos, 1f - positionSmoothing);
     }
 }

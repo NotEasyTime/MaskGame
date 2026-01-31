@@ -19,8 +19,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Jumping & Gravity")]
     public float jumpForce = 12f;
     public float gravity = -30f; 
-    public float coyoteTime = 0.15f;      // Extra time to jump after falling
-    public float jumpBufferTime = 0.15f;  // Register jump input before hitting ground
+    public float coyoteTime = 0.15f; 
+    public float jumpBufferTime = 0.15f; 
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -36,7 +36,6 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
         rb.useGravity = false; 
         
-        // INTERPOLATION IS KEY: This smooths out the "grid" movement
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         PhysicsMaterial frictionless = new PhysicsMaterial("Frictionless") {
@@ -59,7 +58,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 if (!isGrounded) landingDelay = 0.15f; 
                 isGrounded = true;
-                coyoteCounter = coyoteTime; // Reset coyote time
+                coyoteCounter = coyoteTime;
                 return;
             }
         }
