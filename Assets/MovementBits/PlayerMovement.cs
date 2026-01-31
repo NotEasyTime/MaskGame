@@ -10,14 +10,16 @@ public class PlayerMovement : MonoBehaviour
     public float maxWalkSpeed = 15f;
     public float maxSprintSpeed = 22f; 
     public float groundDrag = 6f;
-    public float airMultiplier = 0.4f;
-
-    [Header("Air Control")]
-    public float strafeIntensity = 5f; 
     
+    [Header("Momentum Settings")]
+    // How fast the player slows down when pressing the opposite direction
+    public float counterInputForce = 40f; 
+    public float airMultiplier = 0.3f;
+    public float strafeIntensity = 2f; 
+
     [Header("Jumping & Gravity")]
     public float jumpForce = 12f;
-    public float gravity = -20f;
+    public float gravity = -30f; 
     
     [Header("Camera & FOV")]
     public Camera playerCamera;
@@ -29,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveInput;
     private bool isSprinting; 
     private bool isGrounded;
+    private float landingDelay;
 
     void Start()
     {
@@ -36,7 +39,12 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
         rb.useGravity = false; 
 
-        if (playerCamera != null) playerCamera.fieldOfView = baseFOV;
+        PhysicsMaterial frictionless = new PhysicsMaterial("Frictionless") {
+            staticFriction = 0f,
+            dynamicFriction = 0f,
+            frictionCombine = PhysicsMaterialCombine.Minimum
+        };
+        GetComponent<Collider>().material = frictionless;
     }
     
     public void OnMove(InputValue value) => moveInput = value.Get<Vector2>();
@@ -49,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (contact.normal.y > 0.6f) 
             {
+                if (!isGrounded) landingDelay = 0.15f; 
                 isGrounded = true;
                 return;
             }
@@ -59,77 +68,71 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // MOMENTUM PRESERVATION: 
-        // If we are grounded but moving/pressing keys, reduce drag to allow sliding/momentum.
-        // If we stop pressing keys, apply full drag to stop the player.
-        if (isGrounded)
-        {
-            rb.linearDamping = (moveInput.magnitude > 0.1f) ? groundDrag * 0.2f : groundDrag;
-        }
-        else
-        {
-            rb.linearDamping = 0f;
-        }
-
+        if (landingDelay > 0) landingDelay -= Time.deltaTime;
         HandleFOV();
     }
 
     void FixedUpdate()
     {
+        ApplyDrag();
         MovePlayer();
-        SpeedControl();
         ApplyCustomGravity();
+    }
+
+    void ApplyDrag()
+    {
+        // Drag only applies if we aren't touching keys
+        if (isGrounded && landingDelay <= 0 && moveInput.magnitude < 0.1f)
+        {
+            rb.linearDamping = groundDrag;
+        }
+        else
+        {
+            rb.linearDamping = 0.05f; // Very low damping to allow sliding
+        }
     }
 
     void MovePlayer()
     {
         Vector3 moveDir = transform.forward * moveInput.y + transform.right * moveInput.x;
         Vector3 currentHorizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        float currentMax = (isSprinting && moveInput.magnitude > 0) ? maxSprintSpeed : maxWalkSpeed;
+        float currentMax = isSprinting ? maxSprintSpeed : maxWalkSpeed;
 
-        if (isGrounded)
+        if (moveInput.magnitude > 0)
         {
-            // Allow force application only if we aren't already exceeding the speed cap in that direction
-            float speedInInputDirection = Vector3.Dot(currentHorizontalVel, moveDir.normalized);
-            
-            if (speedInInputDirection < currentMax)
+            // --- THE KEY CHANGE ---
+            // Check if we are trying to move in the opposite direction of our current velocity
+            float dot = Vector3.Dot(currentHorizontalVel.normalized, moveDir.normalized);
+
+            if (dot < -0.1f) // We are pressing a "Counter" key (like S while moving forward)
             {
-                rb.AddForce(moveDir.normalized * (isSprinting ? sprintSpeed : walkSpeed), ForceMode.Force);
+                // Apply a steady braking force instead of a velocity snap
+                rb.AddForce(moveDir.normalized * counterInputForce, ForceMode.Acceleration);
             }
-        }
-        else
-        {
-            // Air Logic
-            float speedInInputDirection = Vector3.Dot(currentHorizontalVel, moveDir.normalized);
-            if (speedInInputDirection < currentMax)
+            else
             {
-                rb.AddForce(moveDir.normalized * walkSpeed * airMultiplier, ForceMode.Force);
+                // Normal acceleration logic
+                float projection = Vector3.Dot(currentHorizontalVel, moveDir.normalized);
+                if (projection < currentMax)
+                {
+                    float multiplier = isGrounded ? 1f : airMultiplier;
+                    rb.AddForce(moveDir.normalized * (isSprinting ? sprintSpeed : walkSpeed) * multiplier, ForceMode.Force);
+                }
             }
 
-            if (moveInput.magnitude > 0 && currentHorizontalVel.magnitude > 0.1f)
+            if (!isGrounded && currentHorizontalVel.magnitude > 0.1f)
             {
                 ApplyAirStrafing(moveDir, currentHorizontalVel);
             }
         }
     }
 
-    void SpeedControl()
-    {
-        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        float currentMax = (isSprinting && moveInput.magnitude > 0) ? maxSprintSpeed : maxWalkSpeed;
-
-        // MOMENTUM PRESERVATION:
-        // Only hard-clamp speed if the player is NOT pressing any input.
-        // If they ARE pressing input, we let them keep their excess speed (e.g., from a fall or explosion).
-        if (moveInput.magnitude == 0 && flatVel.magnitude > currentMax)
-        {
-            Vector3 brakeForce = -flatVel.normalized * groundDrag;
-            rb.AddForce(brakeForce, ForceMode.Acceleration);
-        }
-    }
-
     void ApplyAirStrafing(Vector3 moveDir, Vector3 currentHorizontalVel)
     {
+        // If we are pressing S (dot < 0), we skip air strafing so it doesn't fight the momentum
+        float dot = Vector3.Dot(currentHorizontalVel.normalized, moveDir.normalized);
+        if (dot < 0) return;
+
         Vector3 targetVelocity = moveDir * currentHorizontalVel.magnitude;
         Vector3 velocityDiff = targetVelocity - currentHorizontalVel;
         rb.AddForce(velocityDiff * strafeIntensity, ForceMode.Acceleration);
@@ -147,7 +150,7 @@ public class PlayerMovement : MonoBehaviour
     void Jump()
     {
         isGrounded = false;
-        // Notice: We don't zero out horizontal velocity here, preserving the speed you had.
+        landingDelay = 0.1f;
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 }
