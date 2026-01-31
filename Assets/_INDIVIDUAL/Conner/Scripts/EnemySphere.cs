@@ -26,18 +26,28 @@ public class EnemySphere : MonoBehaviour
     [SerializeField] private float splitSpreadRadius = 2f;
 
     private NavMeshAgent agent;
-    private Rigidbody rb;
+    private Renderer rend;
 
     private void Awake()
     {
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
-        rb = GetComponent<Rigidbody>();
-        
-        if (rb != null)
+        rend = GetComponent<Renderer>();
+    }
+    
+    private void Start()
+    {
+        ApplyColorShift();
+    }
+    
+    private void ApplyColorShift()
+    {
+        if (rend != null)
         {
-            rb.useGravity = true;
-            rb.constraints = RigidbodyConstraints.FreezeRotation;
+
+            Color baseColor = rend.material.color;
+            float tintProgress = 1f - ((float)splitDepth / 3f);
+            rend.material.color = Color.Lerp(baseColor, Color.white, tintProgress * 0.8f);
         }
     }
 
