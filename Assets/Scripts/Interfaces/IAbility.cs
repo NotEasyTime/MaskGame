@@ -7,6 +7,9 @@ namespace Dwayne.Interfaces
     /// </summary>
     public interface IAbility
     {
+        /// <summary>Element this ability belongs to (for UI and filtering).</summary>
+        Element.Element ElementType { get; }
+
         /// <summary>Whether the ability can be used (e.g. off cooldown, has resource).</summary>
         bool CanUse { get; }
 
