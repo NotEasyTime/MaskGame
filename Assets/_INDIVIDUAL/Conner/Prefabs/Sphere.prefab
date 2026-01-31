@@ -156,6 +156,8 @@ MonoBehaviour:
   sizeMultiplier: 0.6
   player: {fileID: 0}
   contactDamage: 10
+  knockbackDistance: 8
+  knockbackDuration: 0.2
   downForce: 20
   popHeight: 1.2
   popDuration: 0.25
