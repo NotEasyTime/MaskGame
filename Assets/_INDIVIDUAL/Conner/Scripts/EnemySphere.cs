@@ -17,6 +17,11 @@ public class EnemySphere : MonoBehaviour
     [Header("AI")]
     [SerializeField] private Transform player;
 
+    [Header("Combat")]
+    [SerializeField] private int contactDamage = 10;
+    [SerializeField] private float knockbackDistance = 2f;
+    [SerializeField] private float knockbackDuration = 0.2f;
+
     [Header("Movement")]
     [SerializeField] private float downForce = 20f;
 
@@ -33,6 +38,16 @@ public class EnemySphere : MonoBehaviour
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
         rend = GetComponent<Renderer>();
+
+        // Auto-find player if not assigned
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.Find("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+        }
     }
     
     private void Start()
@@ -72,6 +87,25 @@ public class EnemySphere : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void TakeDamage(int damage, Vector3 damageSourcePosition)
+    {
+        currentHealth -= damage;
+
+        // Apply knockback
+        if (knockbackDistance > 0)
+        {
+            Vector3 knockbackDir = (transform.position - damageSourcePosition).normalized;
+            knockbackDir.y = 0; // keep on ground
+            Vector3 targetPos = transform.position + knockbackDir * knockbackDistance;
+            StartCoroutine(KnockbackEffect(targetPos));
+        }
 
         if (currentHealth <= 0)
         {
@@ -157,5 +191,60 @@ public class EnemySphere : MonoBehaviour
         }
 
         slime.position = end;
+    }
+
+    // =====================
+    // KNOCKBACK EFFECT
+    // =====================
+
+    private IEnumerator KnockbackEffect(Vector3 targetPosition)
+    {
+        Vector3 startPos = transform.position;
+        float elapsed = 0f;
+
+        if (agent != null)
+        {
+            agent.enabled = false; // temporarily disable NavMeshAgent
+        }
+
+        while (elapsed < knockbackDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / knockbackDuration;
+            transform.position = Vector3.Lerp(startPos, targetPosition, t);
+            yield return null;
+        }
+
+        transform.position = targetPosition;
+
+        if (agent != null)
+        {
+            agent.enabled = true; // re-enable NavMeshAgent
+        }
+    }
+
+    // =====================
+    // PLAYER CONTACT DAMAGE
+    // =====================
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(contactDamage);
+            }
+
+            // Knock sphere back away from player
+            if (knockbackDistance > 0)
+            {
+                Vector3 knockbackDir = (transform.position - other.transform.position).normalized;
+                knockbackDir.y = 0;
+                Vector3 targetPos = transform.position + knockbackDir * knockbackDistance;
+                StartCoroutine(KnockbackEffect(targetPos));
+            }
+        }
     }
 }
