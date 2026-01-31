@@ -5,14 +5,13 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float walkSpeed = 45f;
-    public float sprintSpeed = 80f; 
+    public float walkSpeed = 15f;      // Now represents target speed
+    public float sprintSpeed = 22f;    // Now represents target speed
     public float maxWalkSpeed = 15f;
     public float maxSprintSpeed = 22f; 
     public float groundDrag = 6f;
     
     [Header("Momentum Settings")]
-    // How fast the player slows down when pressing the opposite direction
     public float counterInputForce = 40f; 
     public float airMultiplier = 0.3f;
     public float strafeIntensity = 2f; 
@@ -81,14 +80,13 @@ public class PlayerMovement : MonoBehaviour
 
     void ApplyDrag()
     {
-        // Drag only applies if we aren't touching keys
         if (isGrounded && landingDelay <= 0 && moveInput.magnitude < 0.1f)
         {
             rb.linearDamping = groundDrag;
         }
         else
         {
-            rb.linearDamping = 0.05f; // Very low damping to allow sliding
+            rb.linearDamping = 0.05f; 
         }
     }
 
@@ -96,30 +94,39 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 moveDir = transform.forward * moveInput.y + transform.right * moveInput.x;
         Vector3 currentHorizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        float targetSpeed = isSprinting ? sprintSpeed : walkSpeed;
         float currentMax = isSprinting ? maxSprintSpeed : maxWalkSpeed;
 
         if (moveInput.magnitude > 0)
         {
-            // --- THE KEY CHANGE ---
-            // Check if we are trying to move in the opposite direction of our current velocity
             float dot = Vector3.Dot(currentHorizontalVel.normalized, moveDir.normalized);
 
-            if (dot < -0.1f) // We are pressing a "Counter" key (like S while moving forward)
+            // 1. Counter-Steering (Braking when pressing opposite keys)
+            if (dot < -0.1f) 
             {
-                // Apply a steady braking force instead of a velocity snap
                 rb.AddForce(moveDir.normalized * counterInputForce, ForceMode.Acceleration);
             }
-            else
+            // 2. Ground Movement (Instant Speed)
+            else if (isGrounded)
             {
-                // Normal acceleration logic
+                // Only snap to speed if we aren't already going faster than our target (Momentum Preservation)
+                if (currentHorizontalVel.magnitude <= currentMax + 0.1f)
+                {
+                    Vector3 newVel = moveDir.normalized * targetSpeed;
+                    rb.linearVelocity = new Vector3(newVel.x, rb.linearVelocity.y, newVel.z);
+                }
+            }
+            // 3. Air Movement (Gradual/Preservation)
+            else 
+            {
                 float projection = Vector3.Dot(currentHorizontalVel, moveDir.normalized);
                 if (projection < currentMax)
                 {
-                    float multiplier = isGrounded ? 1f : airMultiplier;
-                    rb.AddForce(moveDir.normalized * (isSprinting ? sprintSpeed : walkSpeed) * multiplier, ForceMode.Force);
+                    rb.AddForce(moveDir.normalized * targetSpeed * 2f * airMultiplier, ForceMode.Force);
                 }
             }
 
+            // Apply strafing logic in air
             if (!isGrounded && currentHorizontalVel.magnitude > 0.1f)
             {
                 ApplyAirStrafing(moveDir, currentHorizontalVel);
@@ -129,7 +136,6 @@ public class PlayerMovement : MonoBehaviour
 
     void ApplyAirStrafing(Vector3 moveDir, Vector3 currentHorizontalVel)
     {
-        // If we are pressing S (dot < 0), we skip air strafing so it doesn't fight the momentum
         float dot = Vector3.Dot(currentHorizontalVel.normalized, moveDir.normalized);
         if (dot < 0) return;
 
