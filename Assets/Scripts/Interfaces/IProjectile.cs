@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Interfaces
+namespace Dwayne.Interfaces
 {
     /// <summary>
     /// Interface for projectile behavior: movement, impact, and damage.

@@ -1,5 +1,5 @@
+using Interfaces;
 using UnityEngine;
-using KuroParadigm.Calamity.Tools.Core;
 
 namespace Dwayne.Weapons
 {
