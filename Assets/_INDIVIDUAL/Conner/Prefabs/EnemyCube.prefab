@@ -109,7 +109,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -134,7 +134,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6153752351596253516, guid: 37814adf098199941854cdcc23bc6325, type: 3}
   projectileSpeed: 11
   rotationSpeed: 5
-  spawnOffset: {x: 0, y: 0, z: 1}
+  spawnOffset: {x: 0, y: 0, z: 2}
 --- !u!135 &856659723682486543
 SphereCollider:
   m_ObjectHideFlags: 0
