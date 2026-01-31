@@ -86,24 +86,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "MovementAbility",
-                    "type": "Button",
-                    "id": "a1b2c3d4-0001-4000-8000-000000000001",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "CombatAbility",
-                    "type": "Button",
-                    "id": "a1b2c3d4-0002-4000-8000-000000000002",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -489,50 +471,6 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Crouch",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b4c5d6e7-0001-4000-8000-000000000001",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "MovementAbility",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b4c5d6e7-0002-4000-8000-000000000002",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "MovementAbility",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b4c5d6e7-0003-4000-8000-000000000003",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "CombatAbility",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b4c5d6e7-0004-4000-8000-000000000004",
-                    "path": "<Gamepad>/buttonEast",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "CombatAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
