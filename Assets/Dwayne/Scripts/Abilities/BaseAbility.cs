@@ -1,5 +1,6 @@
 using UnityEngine;
 using Dwayne.Interfaces;
+using Element;
 
 namespace Dwayne.Abilities
 {
@@ -9,11 +10,15 @@ namespace Dwayne.Abilities
     /// </summary>
     public abstract class BaseAbility : MonoBehaviour, IAbility
     {
+        [Header("Element")]
+        [SerializeField] protected Element.Element elementType = Element.Element.Air;
+
         [Header("Cooldown")]
         [SerializeField] protected float cooldownDuration = 1f;
 
         protected float lastUseTime = float.NegativeInfinity;
 
+        public virtual Element.Element ElementType => elementType;
         public virtual bool CanUse => CooldownRemaining <= 0f;
         public virtual float CooldownRemaining => Mathf.Max(0f, lastUseTime + cooldownDuration - Time.time);
         public virtual float CooldownDuration => cooldownDuration;

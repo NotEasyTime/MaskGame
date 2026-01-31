@@ -223,6 +223,7 @@ namespace Dwayne.Weapons
         {
             Vector3 origin = transform.position;
             Vector3 direction = transform.forward;
+            Debug.Log($"[{name}] DebugFire: origin={origin}, direction={direction}");
             Fire(origin, direction);
         }
 
@@ -230,6 +231,7 @@ namespace Dwayne.Weapons
         private void DebugFireAbility()
         {
             Vector3 target = transform.position + transform.forward * range;
+            Debug.Log($"[{name}] DebugFireAbility: target={target}, range={range}");
             TryUseFireAbility(target);
         }
 #endif
