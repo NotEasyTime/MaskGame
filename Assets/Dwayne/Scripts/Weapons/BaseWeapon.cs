@@ -1,6 +1,6 @@
 using UnityEngine;
-using Dwayne.Interfaces;
 using Dwayne.Abilities;
+using Dwayne.Interfaces;
 
 namespace Dwayne.Weapons
 {
@@ -49,10 +49,10 @@ namespace Dwayne.Weapons
             currentShots > 0 && (fireCooldown <= 0f || Time.time >= nextFireTime);
 
         /// <summary>True when the weapon is currently being charged.</summary>
-        protected virtual bool IsCharging => useCharging && chargeStartTime >= 0f;
+        public virtual bool IsCharging => useCharging && chargeStartTime >= 0f;
 
         /// <summary>Current charge progress 0..1. Only valid while IsCharging.</summary>
-        protected virtual float ChargeProgress =>
+        public virtual float ChargeProgress =>
             !IsCharging ? 0f : Mathf.Clamp01((Time.time - chargeStartTime) / maxChargeTime);
 
         /// <summary>Damage multiplier for the current charge level (1 at no charge, fullChargeDamageMultiplier at full).</summary>

@@ -1,5 +1,5 @@
-using UnityEngine;
 using Dwayne.Interfaces;
+using UnityEngine;
 
 namespace Dwayne.Weapons
 {
