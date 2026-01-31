@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace KuroParadigm.Calamity.Systems.Pool
+namespace Pool
 {
     #region Enums
 

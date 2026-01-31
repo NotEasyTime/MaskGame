@@ -1,5 +1,5 @@
 using UnityEngine;
-using KuroParadigm.Calamity.Tools.Core;
+using Core;
 
 namespace Dwayne.Weapons
 {

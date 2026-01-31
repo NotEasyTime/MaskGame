@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace KuroParadigm.Calamity.Tools.Core
+namespace Interfaces
 {
     /// <summary>
     /// Interface for objects that can receive damage (body, limb, destructible).

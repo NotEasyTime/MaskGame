@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Dwayne.Interfaces
+namespace Interfaces
 {
     /// <summary>
     /// Common interface for weapons: projectile and hitscan.
