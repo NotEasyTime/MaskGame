@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using System.Collections;
 using System; // Required for Action
 using Interfaces;
+using Dwayne.Effects;
 
 public class EnemyPyramid : MonoBehaviour, IDamagable
 {
@@ -24,11 +25,17 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
     [SerializeField] private float stopDistance = 3f;
 
     [Header("Explosion / Teleport")]
-    [SerializeField] private GameObject spawnPrefab; 
-    [SerializeField] private float countdownTime = 3f; 
+    [SerializeField] private GameObject spawnPrefab;
+    [SerializeField] private float countdownTime = 3f;
+
+    [Header("Combat")]
+    [SerializeField] private float knockbackDistance = 2f;
+    [SerializeField] private float knockbackDuration = 0.2f;
 
     private NavMeshAgent agent;
     private Renderer rend;
+    private float baseSpeed;
+    private SpeedEffect speedEffect;
 
     private bool isCountingDown = false;
     private float countdownTimer;
@@ -41,7 +48,13 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
         rend = GetComponent<Renderer>();
-        
+        speedEffect = GetComponent<SpeedEffect>();
+
+        if (agent != null)
+        {
+            baseSpeed = agent.speed;
+        }
+
         if (player == null)
         {
             GameObject playerObj = GameObject.Find("Player");
@@ -58,6 +71,12 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
     {
         // Stop logic if dead or missing player
         if (!IsAlive || player == null || agent == null || !agent.isOnNavMesh) return;
+
+        // Apply speed effect modifier
+        if (speedEffect != null && agent != null)
+        {
+            agent.speed = baseSpeed * speedEffect.GetMovementMultiplier();
+        }
 
         float distance = Vector3.Distance(transform.position, player.position);
 
@@ -140,6 +159,14 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
         currentHealth -= amount;
         OnDamaged?.Invoke(amount, hitPoint, source);
 
+        // Apply knockback using the hit direction
+        if (knockbackDistance > 0 && hitDirection != Vector3.zero)
+        {
+            Vector3 targetPos = transform.position + (hitDirection.normalized * knockbackDistance);
+            targetPos.y = transform.position.y;
+            StartCoroutine(KnockbackEffect(targetPos));
+        }
+
         if (currentHealth <= 0)
         {
             currentHealth = 0;
@@ -147,6 +174,28 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
         }
 
         return amount;
+    }
+
+    private IEnumerator KnockbackEffect(Vector3 targetPosition)
+    {
+        Vector3 startPos = transform.position;
+        float elapsed = 0f;
+
+        if (agent != null) agent.enabled = false;
+
+        while (elapsed < knockbackDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / knockbackDuration;
+            transform.position = Vector3.Lerp(startPos, targetPosition, t);
+            yield return null;
+        }
+
+        if (agent != null)
+        {
+            agent.enabled = true;
+            if (agent.isOnNavMesh) agent.ResetPath();
+        }
     }
 
     private void Die()

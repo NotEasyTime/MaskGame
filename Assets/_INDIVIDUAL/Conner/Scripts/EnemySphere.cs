@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using System.Collections;
 using System;
 using Interfaces;
+using Dwayne.Effects;
 
 public class EnemySphere : MonoBehaviour, IDamagable
 {
@@ -44,12 +45,20 @@ public class EnemySphere : MonoBehaviour, IDamagable
 
     private NavMeshAgent agent;
     private Renderer rend;
+    private float baseSpeed;
+    private SpeedEffect speedEffect;
 
     private void Awake()
     {
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
         rend = GetComponent<Renderer>();
+        speedEffect = GetComponent<SpeedEffect>();
+
+        if (agent != null)
+        {
+            baseSpeed = agent.speed;
+        }
 
         if (player == null)
         {
@@ -73,6 +82,12 @@ public class EnemySphere : MonoBehaviour, IDamagable
     {
         if (agent == null || !agent.isOnNavMesh || player == null)
             return;
+
+        // Apply speed effect modifier
+        if (speedEffect != null)
+        {
+            agent.speed = baseSpeed * speedEffect.GetMovementMultiplier();
+        }
 
         agent.SetDestination(player.position);
 
