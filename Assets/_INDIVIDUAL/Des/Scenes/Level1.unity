@@ -1156,6 +1156,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1179936236}
+  - component: {fileID: 1179936237}
   m_Layer: 0
   m_Name: PlayerSpawn
   m_TagString: Untagged
@@ -1178,6 +1179,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &1179936237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1179936235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efb3b6ba727e241b391d5b54a2c57b91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawn
+  spawnPoint: {fileID: 0}
 --- !u!1001 &1252599612
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1424,7 +1438,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Managers.GameManager
   playerPrefab: {fileID: 1382737036237916155, guid: 9580e5bd7c6bb401d93bbb6cd2d2b5bf, type: 3}
-  playerSpawnPoint: {fileID: 1179936236}
   enemyPrefabs: []
   enemySpawnPoints: []
   enemySpawnRate: 5
