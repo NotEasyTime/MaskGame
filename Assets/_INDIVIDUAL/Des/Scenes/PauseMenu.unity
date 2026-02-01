@@ -273,6 +273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65d5113f35f17394d9dc2156633832dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Managers.LoadMainMenuButton
+  showDebug: 1
 --- !u!224 &1072404591 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9100116956576348704, guid: 3036e2701955878488e9ba721c23f597, type: 3}
@@ -384,6 +385,10 @@ PrefabInstance:
     - target: {fileID: 6836428153677952952, guid: 3036e2701955878488e9ba721c23f597, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: Managers.LoadMainMenuButton, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8281934466416863126, guid: 3036e2701955878488e9ba721c23f597, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9100116956576348704, guid: 3036e2701955878488e9ba721c23f597, type: 3}
       propertyPath: m_Pivot.x

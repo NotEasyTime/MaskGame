@@ -2241,7 +2241,7 @@ MonoBehaviour:
   - MainMenu
   - PauseMenu
   pauseMenuSceneName: PauseMenu
-  pauseMenuPrefab: {fileID: 0}
+  pauseMenuPrefab: {fileID: 5641255298470664797, guid: 3036e2701955878488e9ba721c23f597, type: 3}
   isPaused: 0
   score: 0
 --- !u!4 &630800097
@@ -6565,8 +6565,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.000061035, y: -79.969}
-  m_SizeDelta: {x: 694.9226, y: 159.9376}
+  m_AnchoredPosition: {x: -0.009643555, y: -75}
+  m_SizeDelta: {x: 1920, y: 150}
   m_Pivot: {x: 0.50000006, y: 0.5}
 --- !u!114 &1964752034
 MonoBehaviour:
