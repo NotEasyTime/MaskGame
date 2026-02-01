@@ -1,17 +1,17 @@
 using UnityEngine;
-using Interfaces;
+using Dwayne.Abilities;
 
 namespace Dwayne.Weapons
 {
     /// <summary>
-    /// Weapon that fires an instant raycast (hitscan). Use for rifles, pistols, lasers.
-    /// Assign to a GameObject (optionally with a child as fire point); call Fire(origin, direction) from input.
+    /// Weapon that uses BaseAbility for hitscan/instant attacks.
+    /// Works with any BaseAbility (FireSpreadAbility, FireFocusAbility, etc.).
+    /// The fireAbility handles the actual attack logic (raycast, damage, VFX).
     /// </summary>
     public class HitscanWeapon : BaseWeapon
     {
-        [Header("Hitscan")]
-        [SerializeField] protected LayerMask hitMask = ~0;
-        [SerializeField] protected bool useChargeDamage = true;
+        [Header("Hitscan Settings")]
+        [SerializeField] protected bool useChargeDamage = false;
 
         protected override bool DoFire(Vector3 origin, Vector3 direction)
         {
@@ -20,18 +20,26 @@ namespace Dwayne.Weapons
 
         protected override bool DoFire(Vector3 origin, Vector3 direction, float charge)
         {
-            if (!Physics.Raycast(origin, direction, out var hit, range, hitMask))
-                return true; // count as fired (no hit)
+            // Use the fireAbility (any BaseAbility)
+            if (fireAbility == null)
+            {
+                Debug.LogWarning($"HitscanWeapon '{name}' has no fireAbility assigned! Please assign a BaseAbility.");
+                return false;
+            }
 
-            float damageAmount = damage;
-            if (useChargeDamage)
-                damageAmount *= Mathf.Lerp(1f, fullChargeDamageMultiplier, charge);
+            // Check if ability can be used
+            if (!fireAbility.CanUse)
+            {
+                return false;
+            }
 
-            var damagable = hit.collider.GetComponent<IDamagable>();
-            if (damagable != null && damagable.IsAlive)
-                damagable.TakeDamage(damageAmount, hit.point, -direction, gameObject);
+            // Calculate target position from origin and direction
+            Vector3 targetPosition = origin + direction * range;
 
-            return true;
+            // Use the ability - it will handle the hitscan attack
+            bool success = fireAbility.Use(Owner, targetPosition);
+
+            return success;
         }
     }
 }

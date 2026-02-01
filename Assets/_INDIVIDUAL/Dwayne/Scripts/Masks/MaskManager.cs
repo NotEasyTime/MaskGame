@@ -234,14 +234,28 @@ namespace Dwayne.Masks
         public bool UseCombatAbility()
         {
             if (weaponComponent == null)
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning("MaskManager: Cannot use combat ability - no weapon equipped!");
                 return false;
+            }
+
+            if (weaponComponent.FireAbility == null)
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning($"MaskManager: Cannot use combat ability - weapon '{weaponComponent.name}' has no fireAbility assigned!");
+                return false;
+            }
 
             Vector3 targetPosition = GetTargetPosition();
             bool used = weaponComponent.TryUseFireAbility(targetPosition);
 
-            if (showDebugLogs && used)
+            if (showDebugLogs)
             {
-                Debug.Log($"MaskManager: Used combat ability (Target: {targetPosition})");
+                if (used)
+                    Debug.Log($"MaskManager: Used combat ability '{weaponComponent.FireAbility.GetType().Name}' (Target: {targetPosition})");
+                else
+                    Debug.LogWarning($"MaskManager: Failed to use combat ability '{weaponComponent.FireAbility.GetType().Name}' - ability on cooldown or cannot be used");
             }
 
             return used;
