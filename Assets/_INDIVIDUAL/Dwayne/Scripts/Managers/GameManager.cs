@@ -19,7 +19,7 @@ namespace Managers
         [Tooltip("Player prefab to spawn (optional - if not set, will use existing player in scene)")]
         public GameObject playerPrefab;
         [Tooltip("Location where player spawns/respawns")]
-        public Transform playerSpawnPoint;
+        private Transform playerSpawnPoint;
         
         [Header("Enemy Spawning")]
         public GameObject[] enemyPrefabs;
@@ -114,7 +114,7 @@ namespace Managers
         {
             // Prevent duplicate initialization
             if (isInitializingScene) return;
-
+            playerSpawnPoint = PlayerSpawn.Instance.transform;
             // Only spawn player if we're in a game scene
             if (IsGameScene(sceneName))
             {
