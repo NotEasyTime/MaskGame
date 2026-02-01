@@ -1,5 +1,6 @@
 using UnityEngine;
 using Dwayne.Interfaces;
+using Dwayne.Effects;
 using Element;
 
 namespace Dwayne.Abilities
@@ -31,6 +32,16 @@ namespace Dwayne.Abilities
 
         [Tooltip("How long VFX objects live before auto-destroying (0 = use particle lifetime)")]
         [SerializeField] protected float vfxLifetime = 2f;
+
+        [Header("Slow Effect")]
+        [Tooltip("Can this ability apply slow to targets?")]
+        [SerializeField] protected bool canSlow = false;
+
+        [Tooltip("Movement speed multiplier when slowed (0.5 = 50% speed, 0 = frozen)")]
+        [SerializeField] [Range(0f, 1f)] protected float slowMultiplier = 0.5f;
+
+        [Tooltip("How long the slow effect lasts in seconds")]
+        [SerializeField] protected float slowDuration = 2f;
 
         protected float lastUseTime = float.NegativeInfinity;
 
@@ -106,6 +117,57 @@ namespace Dwayne.Abilities
                 Destroy(vfx, vfxLifetime);
 
             return vfx;
+        }
+
+        /// <summary>
+        /// Applies slow effect to a single target if this ability can slow.
+        /// Gets or adds SlowEffect component and applies the slow.
+        /// </summary>
+        protected virtual void ApplySlow(GameObject target)
+        {
+            if (!canSlow || target == null)
+                return;
+
+            SlowEffect slowEffect = target.GetComponent<SlowEffect>();
+            if (slowEffect == null)
+                slowEffect = target.AddComponent<SlowEffect>();
+
+            slowEffect.ApplySlow(slowMultiplier, slowDuration);
+        }
+
+        /// <summary>
+        /// Applies slow effect to multiple targets (useful for AOE abilities).
+        /// Filters out null colliders and applies slow to each valid target.
+        /// </summary>
+        protected virtual void ApplySlowToColliders(Collider[] colliders)
+        {
+            if (!canSlow || colliders == null || colliders.Length == 0)
+                return;
+
+            foreach (Collider collider in colliders)
+            {
+                if (collider != null && collider.gameObject != null)
+                {
+                    ApplySlow(collider.gameObject);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applies slow effect to GameObjects (useful when you already have GameObject references).
+        /// </summary>
+        protected virtual void ApplySlowToTargets(GameObject[] targets)
+        {
+            if (!canSlow || targets == null || targets.Length == 0)
+                return;
+
+            foreach (GameObject target in targets)
+            {
+                if (target != null)
+                {
+                    ApplySlow(target);
+                }
+            }
         }
     }
 }

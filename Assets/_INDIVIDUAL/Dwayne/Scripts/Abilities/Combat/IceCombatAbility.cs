@@ -8,6 +8,7 @@ namespace Dwayne.Abilities
     /// <summary>
     /// Ice combat: Slow AOE + Spear (projectile). No shotgun.
     /// This ability does AOE slow/damage; Spear can be a separate ProjectileWeapon.
+    /// Uses the SlowEffect system from BaseAbility to apply slow to targets.
     /// </summary>
     public class IceCombatAbility : BaseAbility
     {
@@ -17,8 +18,6 @@ namespace Dwayne.Abilities
         [SerializeField] float range = 8f;
         [SerializeField] float radius = 4f;
         [SerializeField] float damage = 12f;
-        [SerializeField] float slowMultiplier = 0.5f;
-        [SerializeField] float slowDuration = 2f;
         [SerializeField] LayerMask hitMask = ~0;
 
         protected override bool DoUse(GameObject user, Vector3 targetPosition)
@@ -40,9 +39,9 @@ namespace Dwayne.Abilities
                 if (damagable != null && damagable.IsAlive)
                 {
                     damagable.TakeDamage(damage, col.ClosestPoint(origin), (col.transform.position - origin).normalized, user);
-                    Rigidbody rb = col.GetComponent<Rigidbody>();
-                    if (rb != null && slowDuration > 0f)
-                        rb.linearVelocity *= slowMultiplier;
+
+                    // Apply slow effect using BaseAbility's slow system
+                    ApplySlow(col.gameObject);
                 }
             }
 
