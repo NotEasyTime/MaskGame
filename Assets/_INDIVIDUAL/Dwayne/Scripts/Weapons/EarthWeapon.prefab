@@ -55,10 +55,13 @@ MonoBehaviour:
   maxChargeTime: 1
   minChargeToFire: 0
   fullChargeDamageMultiplier: 1.5
-  fireAbility: {fileID: 0}
-  altFireAbility: {fileID: 0}
+  fireAbility: {fileID: 3096345533277048725, guid: 50108592e8674504f9e70612ab68a2d5, type: 3}
+  altFireAbility: {fileID: 2019207519434019583, guid: 3c4a75f708e66ef41b7eabb9fde6ff4d, type: 3}
   owner: {fileID: 0}
-  hitMask:
+  fallbackFireMode: 0
+  fallbackHitMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  useChargeDamage: 1
+  fallbackProjectilePrefab: {fileID: 0}
+  fallbackProjectileSpeed: 20
+  fallbackPoolName: 

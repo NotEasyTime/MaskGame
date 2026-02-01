@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8948289500178815609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2037194234712947297}
+  - component: {fileID: 3259448182673440814}
+  - component: {fileID: 4610819862347027571}
+  m_Layer: 0
+  m_Name: AirWeapon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2037194234712947297
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8948289500178815609}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -63.03624, y: -0, z: 17.39919}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &3259448182673440814
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8948289500178815609}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &4610819862347027571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8948289500178815609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17562c3d9ccab9849987298d12b43156, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Weapons.HitscanWeapon
+  fireCooldown: 0.5
+  magazineSize: 5
+  refillCooldown: 1.5
+  damage: 10
+  range: 100
+  pelletsPerShot: 1
+  spreadAngle: 0
+  useCharging: 1
+  maxChargeTime: 1
+  minChargeToFire: 0
+  fullChargeDamageMultiplier: 1.5
+  fireAbility: {fileID: 1321085287342567240, guid: e0be7116ba090f841829a47d9732d6cc, type: 3}
+  altFireAbility: {fileID: 7778806855962915048, guid: 64e68aeca70417b40b9041274b837ad0, type: 3}
+  owner: {fileID: 0}
+  fallbackFireMode: 1
+  fallbackHitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  fallbackProjectilePrefab: {fileID: 6569340032925744431, guid: 8541302fd43b3c24fa7c4680560220a5, type: 3}
+  fallbackProjectileSpeed: 20
+  fallbackPoolName: 

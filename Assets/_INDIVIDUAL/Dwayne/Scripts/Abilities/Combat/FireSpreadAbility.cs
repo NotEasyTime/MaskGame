@@ -6,10 +6,10 @@ using Interfaces;
 namespace Dwayne.Abilities
 {
     /// <summary>
-    /// Fire combat: Spread (multi-pellet hitscan) / Focus (single-target charged).
-    /// This ability does multi-pellet spread; Focus can be a charged variant or separate weapon.
+    /// Fire spread: Multi-pellet hitscan shotgun attack.
+    /// Counterpart to FireFocusAbility (focused beam).
     /// </summary>
-    public class FireCombatAbility : BaseAbility
+    public class FireSpreadAbility : BaseAbility
     {
         public override Element.Element ElementType => Element.Element.Fire;
 
@@ -19,6 +19,10 @@ namespace Dwayne.Abilities
         [SerializeField] int pelletsPerShot = 6;
         [SerializeField] float spreadAngleDeg = 12f;
         [SerializeField] LayerMask hitMask = ~0;
+
+        [Header("Debug")]
+        [SerializeField] bool showDebugLogs = true;
+        [SerializeField] bool showDebugGizmos = true;
 
         protected override bool DoUse(GameObject user, Vector3 targetPosition)
         {
@@ -30,10 +34,14 @@ namespace Dwayne.Abilities
             if (baseDirection.sqrMagnitude < 0.01f)
                 baseDirection = user.transform.forward;
 
+            if (showDebugLogs)
+                Debug.Log($"[FireSpreadAbility] Firing from {user.name} at {targetPosition} | {pelletsPerShot} pellets | {spreadAngleDeg}° spread");
+
             // Spawn VFX at user when firing
             SpawnVFXAtUser(user);
 
             float halfAngleRad = spreadAngleDeg * 0.5f * Mathf.Deg2Rad;
+            int hitCount = 0;
 
             for (int i = 0; i < pelletsPerShot; i++)
             {
@@ -47,14 +55,35 @@ namespace Dwayne.Abilities
 
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, range, hitMask))
                 {
+                    hitCount++;
+
+                    // Draw debug line
+                    if (showDebugGizmos)
+                        Debug.DrawLine(origin, hit.point, Color.red, 0.5f);
+
                     // Spawn impact VFX on hit
                     SpawnImpactVFX(hit.point, hit.normal);
 
                     var damagable = hit.collider.GetComponent<IDamagable>();
                     if (damagable != null && damagable.IsAlive)
+                    {
                         damagable.TakeDamage(damage, hit.point, -direction, user);
+                        if (showDebugLogs)
+                            Debug.Log($"[FireSpreadAbility] Pellet {i + 1} hit {hit.collider.name} for {damage} damage");
+                    }
+                    else if (showDebugLogs)
+                    {
+                        Debug.Log($"[FireSpreadAbility] Pellet {i + 1} hit {hit.collider.name} (no damage)");
+                    }
+                }
+                else if (showDebugGizmos)
+                {
+                    Debug.DrawRay(origin, direction * range, Color.yellow, 0.5f);
                 }
             }
+
+            if (showDebugLogs)
+                Debug.Log($"[FireSpreadAbility] Spread complete | {hitCount}/{pelletsPerShot} pellets hit");
 
             return true;
         }

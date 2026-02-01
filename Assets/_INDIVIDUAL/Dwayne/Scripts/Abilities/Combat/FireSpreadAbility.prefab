@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &767769785581692861
+--- !u!1 &8151750392422512068
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,49 +8,56 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6267164266771689192}
-  - component: {fileID: 3041790231930041581}
+  - component: {fileID: 2465364002982945988}
+  - component: {fileID: 5777128151034143781}
   m_Layer: 0
-  m_Name: IceCombatAbility
+  m_Name: FireSpreadAbility
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6267164266771689192
+--- !u!4 &2465364002982945988
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 767769785581692861}
+  m_GameObject: {fileID: 8151750392422512068}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.602, y: 0.301, z: 4.75097}
+  m_LocalPosition: {x: 26.118, y: 0, z: 26.45395}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3041790231930041581
+--- !u!114 &5777128151034143781
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 767769785581692861}
+  m_GameObject: {fileID: 8151750392422512068}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ae9122acff626d439eae0d51300ef37, type: 3}
+  m_Script: {fileID: 11500000, guid: 01d6d00a7c29ecf4fb1f439aca315c98, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.IceCombatAbility
+  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.FireSpreadAbility
   elementType: 0
   cooldownDuration: 1
-  range: 8
-  radius: 4
-  damage: 12
+  spawnVFX: {fileID: 0}
+  projectileVFX: {fileID: 0}
+  impactVFX: {fileID: 0}
+  trailVFX: {fileID: 0}
+  vfxLifetime: 2
+  canSlow: 0
   slowMultiplier: 0.5
   slowDuration: 2
+  range: 20
+  damage: 8
+  pelletsPerShot: 6
+  spreadAngleDeg: 12
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295

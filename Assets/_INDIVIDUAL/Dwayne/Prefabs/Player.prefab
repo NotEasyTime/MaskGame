@@ -556,78 +556,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &6808240907321747216
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 118284255658749623}
-  - component: {fileID: 7111177650112977799}
-  - component: {fileID: 4848566648468733516}
-  m_Layer: 0
-  m_Name: MaskManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &118284255658749623
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6808240907321747216}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.35, y: 0.547, z: 0.82}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1251350063363041598}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7111177650112977799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6808240907321747216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5cac11cd6ab9034b8ff0bafb78cb75f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Masks.MaskManager
-  availableMasks:
-  - {fileID: 11400000, guid: fbcf52ff915febd4c8e90bd8a6e5eeb3, type: 2}
-  - {fileID: 11400000, guid: 9767b6591790aaf4889ad1c2e5c8d778, type: 2}
-  - {fileID: 11400000, guid: 4b96468025543054b9761036a0096e77, type: 2}
-  - {fileID: 11400000, guid: 6c192e72a8d556e45a3bb82ca23ca8d7, type: 2}
-  currentMaskIndex: 0
-  weaponSpawnPoint: {fileID: 0}
-  movementAbilitySpawnPoint: {fileID: 0}
-  useMouseTargeting: 1
-  targetingRaycastMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  defaultTargetDistance: 10
-  showDebugLogs: 0
---- !u!114 &4848566648468733516
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6808240907321747216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e60ef60805ec1cd479aaa40f9e04f63a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Masks.MaskInputHandler
-  showDebugLogs: 1
 --- !u!1 &7185556325731290983
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,3 +587,65 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1251350063363041598}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &6883954700310974948
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1251350063363041598}
+    m_Modifications:
+    - target: {fileID: 140459704296453876, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_Name
+      value: MaskManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.547
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.82
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+--- !u!4 &118284255658749623 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6785942450845597523, guid: aeb0b5053d4b33d479c52f7ed0a95ed6, type: 3}
+  m_PrefabInstance: {fileID: 6883954700310974948}
+  m_PrefabAsset: {fileID: 0}

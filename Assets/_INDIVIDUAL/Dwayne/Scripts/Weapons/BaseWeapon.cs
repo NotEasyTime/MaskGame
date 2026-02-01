@@ -1,12 +1,24 @@
 using UnityEngine;
 using Dwayne.Abilities;
 using Dwayne.Interfaces;
+using Pool;
+using Interfaces;
 
 namespace Dwayne.Weapons
 {
     /// <summary>
+    /// Fire mode for built-in weapon logic when no ability is assigned.
+    /// </summary>
+    public enum FireMode
+    {
+        Hitscan,    // Instant raycast
+        Projectile  // Spawns projectile from pool
+    }
+
+    /// <summary>
     /// Base class for weapons implementing IWeaponInterface.
     /// Uses a cooldown-based fire timer (no magazine/reload); subclasses implement Fire for hitscan or projectile.
+    /// Provides built-in fallback fire logic (hitscan or projectile) when abilities are not assigned.
     /// </summary>
     public abstract class BaseWeapon : MonoBehaviour, IWeaponInterface
     {
@@ -37,6 +49,22 @@ namespace Dwayne.Weapons
         protected BaseAbility altFireAbility;
         [SerializeField] [Tooltip("Owner passed to abilities (user). If unset, uses transform.root or this GameObject.")]
         protected GameObject owner;
+
+        [Header("Fallback Fire Mode")]
+        [Tooltip("Fire type when no ability is assigned (Hitscan = instant raycast, Projectile = spawns projectile)")]
+        [SerializeField] protected FireMode fallbackFireMode = FireMode.Hitscan;
+
+        [Header("Fallback Hitscan")]
+        [Tooltip("Layer mask for built-in hitscan (when no ability is assigned and mode is Hitscan)")]
+        [SerializeField] protected LayerMask fallbackHitMask = ~0;
+
+        [Header("Fallback Projectile")]
+        [Tooltip("Projectile prefab to spawn (when no ability is assigned and mode is Projectile)")]
+        [SerializeField] protected BaseProjectile fallbackProjectilePrefab;
+        [Tooltip("Projectile speed (when no ability is assigned and mode is Projectile)")]
+        [SerializeField] protected float fallbackProjectileSpeed = 20f;
+        [Tooltip("Pool name for projectile (optional, defaults to prefab name)")]
+        [SerializeField] protected string fallbackPoolName;
 
         protected float nextFireTime;
         protected float nextRefillTime;
@@ -99,6 +127,36 @@ namespace Dwayne.Weapons
         {
             nextFireTime = 0f;
             currentShots = magazineSize;
+
+            // Instantiate ability prefabs so we don't modify the original assets
+            // This fixes the "starts on cooldown" bug when abilities are prefab references
+            if (fireAbility != null && !IsInstancedAbility(fireAbility))
+            {
+                fireAbility = InstantiateAbility(fireAbility);
+            }
+            if (altFireAbility != null && !IsInstancedAbility(altFireAbility))
+            {
+                altFireAbility = InstantiateAbility(altFireAbility);
+            }
+        }
+
+        /// <summary>
+        /// Checks if an ability is already an instance (not a prefab reference).
+        /// </summary>
+        private bool IsInstancedAbility(BaseAbility ability)
+        {
+            // If the ability's gameObject is in a scene (has a scene), it's an instance
+            return ability.gameObject.scene.IsValid();
+        }
+
+        /// <summary>
+        /// Instantiates an ability prefab as a child of this weapon.
+        /// </summary>
+        private BaseAbility InstantiateAbility(BaseAbility abilityPrefab)
+        {
+            GameObject instance = Instantiate(abilityPrefab.gameObject, transform);
+            instance.name = abilityPrefab.name + " (Instance)";
+            return instance.GetComponent<BaseAbility>();
         }
 
         protected virtual void Update()
@@ -222,6 +280,112 @@ namespace Dwayne.Weapons
 
         /// <summary>No-op; refill is automatic after refillCooldown. Kept for IWeaponInterface.</summary>
         public virtual void Reload() { }
+
+        /// <summary>
+        /// Built-in fire logic used when no fireAbility is assigned.
+        /// Switches between hitscan raycast and projectile spawning based on fallbackFireMode.
+        /// Subclasses can call this from DoFire() when fireAbility is null.
+        /// </summary>
+        protected virtual bool DoFallbackFire(Vector3 origin, Vector3 direction, float charge = 1f)
+        {
+            // Switch based on fire mode
+            switch (fallbackFireMode)
+            {
+                case FireMode.Hitscan:
+                    return DoFallbackHitscan(origin, direction, charge);
+
+                case FireMode.Projectile:
+                    return DoFallbackProjectile(origin, direction, charge);
+
+                default:
+                    Debug.LogWarning($"BaseWeapon '{name}': Unknown fallback fire mode '{fallbackFireMode}'!");
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Built-in hitscan raycast logic.
+        /// Uses weapon's damage, range, and fallbackHitMask settings.
+        /// </summary>
+        protected virtual bool DoFallbackHitscan(Vector3 origin, Vector3 direction, float charge)
+        {
+            // Calculate damage with charge multiplier
+            float finalDamage = damage * Mathf.Lerp(1f, fullChargeDamageMultiplier, charge);
+
+            // Single raycast
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, range, fallbackHitMask))
+            {
+                // Apply damage to damageable objects
+                var damageable = hit.collider.GetComponent<IDamagable>();
+                if (damageable != null && damageable.IsAlive)
+                {
+                    damageable.TakeDamage(finalDamage, hit.point, -direction, Owner);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Built-in projectile spawning logic.
+        /// Spawns projectile from ObjectPoolManager using weapon's damage and fallbackProjectileSpeed.
+        /// </summary>
+        protected virtual bool DoFallbackProjectile(Vector3 origin, Vector3 direction, float charge)
+        {
+            // Validate projectile prefab
+            if (fallbackProjectilePrefab == null)
+            {
+                Debug.LogError($"BaseWeapon '{name}': Fallback fire mode is Projectile but no fallbackProjectilePrefab assigned!");
+                return false;
+            }
+
+            // Ensure pool manager exists
+            if (ObjectPoolManager.Instance == null)
+            {
+                Debug.LogError($"BaseWeapon '{name}': ObjectPoolManager not found! Cannot spawn projectile.");
+                return false;
+            }
+
+            // Get pool name (use custom name or prefab name)
+            string poolNameToUse = !string.IsNullOrEmpty(fallbackPoolName) ? fallbackPoolName : fallbackProjectilePrefab.name;
+
+            // Create pool if it doesn't exist
+            if (!ObjectPoolManager.Instance.HasPool(poolNameToUse))
+            {
+                ObjectPoolManager.Instance.CreatePoolRuntime(
+                    fallbackProjectilePrefab.gameObject,
+                    preloadCount: 10,
+                    maxSize: 50,
+                    allowExpansion: true
+                );
+            }
+
+            // Get projectile from pool
+            GameObject projectileObj = ObjectPoolManager.Instance.Get(poolNameToUse, origin, Quaternion.LookRotation(direction));
+            if (projectileObj == null)
+            {
+                Debug.LogError($"BaseWeapon '{name}': Failed to get projectile from pool '{poolNameToUse}'!");
+                return false;
+            }
+
+            BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
+            if (projectile == null)
+            {
+                Debug.LogError($"BaseWeapon '{name}': Projectile '{projectileObj.name}' missing BaseProjectile component!");
+                ObjectPoolManager.ReturnToPool(projectileObj);
+                return false;
+            }
+
+            // Calculate damage with charge multiplier
+            float finalDamage = damage * Mathf.Lerp(1f, fullChargeDamageMultiplier, charge);
+
+            // Launch the projectile
+            projectile.Launch(origin, direction, fallbackProjectileSpeed, finalDamage, Owner);
+
+            return true;
+        }
 
 #if UNITY_EDITOR
         [ContextMenu("Fire")]
