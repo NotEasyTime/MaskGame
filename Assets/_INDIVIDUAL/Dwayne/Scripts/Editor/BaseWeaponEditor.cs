@@ -15,6 +15,7 @@ namespace Dwayne.Editor
         SerializedProperty _pelletsPerShot, _spreadAngle;
         SerializedProperty _useCharging, _maxChargeTime, _minChargeToFire, _fullChargeDamageMultiplier;
         SerializedProperty _fireAbility, _altFireAbility, _owner;
+        SerializedProperty _fallbackFireMode, _fallbackHitMask, _fallbackProjectilePrefab, _fallbackProjectileSpeed, _fallbackPoolName;
 
         void OnEnable()
         {
@@ -33,6 +34,11 @@ namespace Dwayne.Editor
             _fireAbility = so.FindProperty("fireAbility");
             _altFireAbility = so.FindProperty("altFireAbility");
             _owner = so.FindProperty("owner");
+            _fallbackFireMode = so.FindProperty("fallbackFireMode");
+            _fallbackHitMask = so.FindProperty("fallbackHitMask");
+            _fallbackProjectilePrefab = so.FindProperty("fallbackProjectilePrefab");
+            _fallbackProjectileSpeed = so.FindProperty("fallbackProjectileSpeed");
+            _fallbackPoolName = so.FindProperty("fallbackPoolName");
         }
 
         bool GetFoldout(string key, bool defaultVal = false)
@@ -103,7 +109,29 @@ namespace Dwayne.Editor
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
-            serializedObject.ApplyModifiedProperties();
+            bool fallbackOpen = GetFoldout("Fallback", true);
+            fallbackOpen = EditorGUILayout.BeginFoldoutHeaderGroup(fallbackOpen, "Fallback Fire Mode");
+            SetFoldout("Fallback", fallbackOpen);
+            if (fallbackOpen)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_fallbackFireMode);
+
+                // Show relevant fields based on fire mode
+                FireMode mode = (FireMode)_fallbackFireMode.enumValueIndex;
+                if (mode == FireMode.Hitscan)
+                {
+                    EditorGUILayout.PropertyField(_fallbackHitMask);
+                }
+                else if (mode == FireMode.Projectile)
+                {
+                    EditorGUILayout.PropertyField(_fallbackProjectilePrefab);
+                    EditorGUILayout.PropertyField(_fallbackProjectileSpeed);
+                    EditorGUILayout.PropertyField(_fallbackPoolName);
+                }
+                EditorGUI.indentLevel--;
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
 
             // Subclass-added properties
             DrawPropertiesExcluding(serializedObject,
@@ -112,7 +140,10 @@ namespace Dwayne.Editor
                 "damage", "range",
                 "pelletsPerShot", "spreadAngle",
                 "useCharging", "maxChargeTime", "minChargeToFire", "fullChargeDamageMultiplier",
-                "fireAbility", "altFireAbility", "owner");
+                "fireAbility", "altFireAbility", "owner",
+                "fallbackFireMode", "fallbackHitMask", "fallbackProjectilePrefab", "fallbackProjectileSpeed", "fallbackPoolName");
+
+            serializedObject.ApplyModifiedProperties();
         }
     }
 }

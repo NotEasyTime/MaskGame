@@ -93,7 +93,7 @@
                     "id": "7b246e75-90c1-41a0-a85c-70c201be678e",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "initialStateCheck": false
                 },
                 {
@@ -102,7 +102,7 @@
                     "id": "9e60bfe4-9dd3-489d-a525-578fabb5e0b5",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "initialStateCheck": false
                 },
                 {
@@ -111,7 +111,7 @@
                     "id": "b3659c96-5af0-4ca8-95c8-0e5341f5d9c8",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "initialStateCheck": false
                 }
             ],
@@ -526,7 +526,7 @@
                 {
                     "name": "",
                     "id": "71f8204b-08ce-47ea-9bd3-695cf99d30dc",
-                    "path": "",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

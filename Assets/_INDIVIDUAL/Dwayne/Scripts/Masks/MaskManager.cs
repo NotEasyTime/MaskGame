@@ -6,9 +6,9 @@ using Element;
 namespace Dwayne.Masks
 {
     /// <summary>
-    /// Manages the player's current mask, including weapon (combat ability) and movement ability.
-    /// Allows separate usage of combat and movement abilities.
-    /// Supports switching between multiple masks.
+    /// Manages the player's masks with separate slots for weapon and movement ability.
+    /// Allows independent cycling of weapon mask and movement mask.
+    /// NextMask cycles the weapon, PreviousMask cycles the movement ability.
     /// </summary>
     public class MaskManager : MonoBehaviour
     {
@@ -16,10 +16,14 @@ namespace Dwayne.Masks
         [Tooltip("Array of available masks that the player can switch between")]
         [SerializeField] private Mask[] availableMasks;
 
-        [Tooltip("Index of the currently equipped mask")]
-        [SerializeField] private int currentMaskIndex = 0;
+        [Tooltip("Index of the mask used for the weapon")]
+        [SerializeField] private int weaponMaskIndex = 0;
 
-        private Mask currentMask;
+        [Tooltip("Index of the mask used for the movement ability")]
+        [SerializeField] private int movementMaskIndex = 0;
+
+        private Mask currentWeaponMask;
+        private Mask currentMovementMask;
 
         [Header("Spawn Points")]
         [Tooltip("Where to spawn the weapon (e.g., hand transform)")]
@@ -29,14 +33,17 @@ namespace Dwayne.Masks
         [SerializeField] private Transform movementAbilitySpawnPoint;
 
         [Header("Targeting")]
-        [Tooltip("Use mouse raycast for ability targeting")]
-        [SerializeField] private bool useMouseTargeting = true;
+        [Tooltip("Use screen center (crosshair) for aiming instead of mouse position")]
+        [SerializeField] private bool useCrosshairAiming = true;
 
-        [Tooltip("Layer mask for mouse raycast")]
+        [Tooltip("Layer mask for targeting raycast")]
         [SerializeField] private LayerMask targetingRaycastMask = ~0;
 
-        [Tooltip("Default targeting distance when mouse raycast fails")]
-        [SerializeField] private float defaultTargetDistance = 10f;
+        [Tooltip("Maximum targeting distance for raycast")]
+        [SerializeField] private float maxTargetDistance = 100f;
+
+        [Tooltip("Default targeting distance when raycast doesn't hit anything")]
+        [SerializeField] private float defaultTargetDistance = 50f;
 
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = false;
@@ -69,45 +76,19 @@ namespace Dwayne.Masks
                 return;
             }
 
-            // Clamp mask index to valid range
-            currentMaskIndex = Mathf.Clamp(currentMaskIndex, 0, availableMasks.Length - 1);
+            // Clamp mask indices to valid range
+            weaponMaskIndex = Mathf.Clamp(weaponMaskIndex, 0, availableMasks.Length - 1);
+            movementMaskIndex = Mathf.Clamp(movementMaskIndex, 0, availableMasks.Length - 1);
 
-            // Equip the initial mask
-            EquipMaskByIndex(currentMaskIndex);
+            // Equip the initial masks
+            EquipWeaponFromMask(weaponMaskIndex);
+            EquipMovementFromMask(movementMaskIndex);
         }
 
         /// <summary>
-        /// Equips a new mask, replacing the current weapon and movement ability.
+        /// Equips weapon from a specific mask index.
         /// </summary>
-        public void EquipMask(Mask mask)
-        {
-            if (mask == null || !mask.IsValid())
-            {
-                Debug.LogError("MaskManager: Cannot equip invalid mask!");
-                return;
-            }
-
-            // Unequip current mask
-            UnequipCurrentMask();
-
-            currentMask = mask;
-
-            // Spawn weapon
-            SpawnWeapon();
-
-            // Spawn movement ability
-            SpawnMovementAbility();
-
-            if (showDebugLogs)
-            {
-                Debug.Log($"MaskManager: Equipped mask '{mask.maskName}' (Weapon: {weaponComponent?.GetType().Name}, Movement: {movementAbilityComponent?.GetType().Name})");
-            }
-        }
-
-        /// <summary>
-        /// Equips a mask by index from the availableMasks array.
-        /// </summary>
-        public void EquipMaskByIndex(int index)
+        public void EquipWeaponFromMask(int index)
         {
             if (availableMasks == null || availableMasks.Length == 0)
             {
@@ -121,41 +102,141 @@ namespace Dwayne.Masks
                 return;
             }
 
-            currentMaskIndex = index;
-            EquipMask(availableMasks[index]);
+            Mask mask = availableMasks[index];
+            if (mask == null || !mask.IsValid())
+            {
+                Debug.LogError("MaskManager: Cannot equip invalid mask for weapon!");
+                return;
+            }
+
+            // Unequip current weapon
+            UnequipCurrentWeapon();
+
+            weaponMaskIndex = index;
+            currentWeaponMask = mask;
+
+            // Spawn weapon
+            SpawnWeapon();
+
+            if (showDebugLogs)
+            {
+                Debug.Log($"MaskManager: Equipped weapon from mask '{mask.maskName}' (Weapon: {weaponComponent?.GetType().Name})");
+            }
         }
 
         /// <summary>
-        /// Switches to the next mask in the array (wraps around to first).
+        /// Equips movement ability from a specific mask index.
+        /// </summary>
+        public void EquipMovementFromMask(int index)
+        {
+            if (availableMasks == null || availableMasks.Length == 0)
+            {
+                Debug.LogError("MaskManager: No masks available to equip!");
+                return;
+            }
+
+            if (index < 0 || index >= availableMasks.Length)
+            {
+                Debug.LogError($"MaskManager: Mask index {index} out of range (0-{availableMasks.Length - 1})!");
+                return;
+            }
+
+            Mask mask = availableMasks[index];
+            if (mask == null || !mask.IsValid())
+            {
+                Debug.LogError("MaskManager: Cannot equip invalid mask for movement!");
+                return;
+            }
+
+            // Unequip current movement ability
+            UnequipCurrentMovementAbility();
+
+            movementMaskIndex = index;
+            currentMovementMask = mask;
+
+            // Spawn movement ability
+            SpawnMovementAbility();
+
+            if (showDebugLogs)
+            {
+                Debug.Log($"MaskManager: Equipped movement from mask '{mask.maskName}' (Movement: {movementAbilityComponent?.GetType().Name})");
+            }
+        }
+
+        /// <summary>
+        /// Cycles to the next weapon mask (wraps around to first).
         /// </summary>
         public void NextMask()
         {
-            if (availableMasks == null || availableMasks.Length == 0)
-                return;
-
-            currentMaskIndex = (currentMaskIndex + 1) % availableMasks.Length;
-            EquipMaskByIndex(currentMaskIndex);
+            NextWeaponMask();
         }
 
         /// <summary>
-        /// Switches to the previous mask in the array (wraps around to last).
+        /// Cycles to the previous movement ability mask (wraps around to last).
         /// </summary>
         public void PreviousMask()
+        {
+            PreviousMovementMask();
+        }
+
+        /// <summary>
+        /// Cycles to the next weapon mask (wraps around to first).
+        /// </summary>
+        public void NextWeaponMask()
         {
             if (availableMasks == null || availableMasks.Length == 0)
                 return;
 
-            currentMaskIndex--;
-            if (currentMaskIndex < 0)
-                currentMaskIndex = availableMasks.Length - 1;
-
-            EquipMaskByIndex(currentMaskIndex);
+            weaponMaskIndex = (weaponMaskIndex + 1) % availableMasks.Length;
+            EquipWeaponFromMask(weaponMaskIndex);
         }
 
         /// <summary>
-        /// Unequips the current mask, destroying weapon and movement ability instances.
+        /// Cycles to the previous weapon mask (wraps around to last).
         /// </summary>
-        public void UnequipCurrentMask()
+        public void PreviousWeaponMask()
+        {
+            if (availableMasks == null || availableMasks.Length == 0)
+                return;
+
+            weaponMaskIndex--;
+            if (weaponMaskIndex < 0)
+                weaponMaskIndex = availableMasks.Length - 1;
+
+            EquipWeaponFromMask(weaponMaskIndex);
+        }
+
+        /// <summary>
+        /// Cycles to the next movement ability mask (wraps around to first).
+        /// </summary>
+        public void NextMovementMask()
+        {
+            if (availableMasks == null || availableMasks.Length == 0)
+                return;
+
+            movementMaskIndex = (movementMaskIndex + 1) % availableMasks.Length;
+            EquipMovementFromMask(movementMaskIndex);
+        }
+
+        /// <summary>
+        /// Cycles to the previous movement ability mask (wraps around to last).
+        /// </summary>
+        public void PreviousMovementMask()
+        {
+            if (availableMasks == null || availableMasks.Length == 0)
+                return;
+
+            movementMaskIndex--;
+            if (movementMaskIndex < 0)
+                movementMaskIndex = availableMasks.Length - 1;
+
+            EquipMovementFromMask(movementMaskIndex);
+        }
+
+        /// <summary>
+        /// Unequips the current weapon.
+        /// </summary>
+        public void UnequipCurrentWeapon()
         {
             if (weaponInstance != null)
             {
@@ -163,7 +244,13 @@ namespace Dwayne.Masks
                 weaponInstance = null;
                 weaponComponent = null;
             }
+        }
 
+        /// <summary>
+        /// Unequips the current movement ability.
+        /// </summary>
+        public void UnequipCurrentMovementAbility()
+        {
             if (movementAbilityInstance != null)
             {
                 Destroy(movementAbilityInstance);
@@ -172,17 +259,26 @@ namespace Dwayne.Masks
             }
         }
 
+        /// <summary>
+        /// Unequips both weapon and movement ability.
+        /// </summary>
+        public void UnequipAll()
+        {
+            UnequipCurrentWeapon();
+            UnequipCurrentMovementAbility();
+        }
+
         private void SpawnWeapon()
         {
-            if (currentMask.weaponPrefab == null)
+            if (currentWeaponMask == null || currentWeaponMask.weaponPrefab == null)
                 return;
 
-            weaponInstance = Instantiate(currentMask.weaponPrefab, weaponSpawnPoint.position, weaponSpawnPoint.rotation, weaponSpawnPoint);
+            weaponInstance = Instantiate(currentWeaponMask.weaponPrefab, weaponSpawnPoint.position, weaponSpawnPoint.rotation, weaponSpawnPoint);
             weaponComponent = weaponInstance.GetComponent<BaseWeapon>();
 
             if (weaponComponent == null)
             {
-                Debug.LogError($"MaskManager: Weapon prefab '{currentMask.weaponPrefab.name}' does not have a BaseWeapon component!");
+                Debug.LogError($"MaskManager: Weapon prefab '{currentWeaponMask.weaponPrefab.name}' does not have a BaseWeapon component!");
                 Destroy(weaponInstance);
                 return;
             }
@@ -193,15 +289,15 @@ namespace Dwayne.Masks
 
         private void SpawnMovementAbility()
         {
-            if (currentMask.movementAbilityPrefab == null)
+            if (currentMovementMask == null || currentMovementMask.movementAbilityPrefab == null)
                 return;
 
-            movementAbilityInstance = Instantiate(currentMask.movementAbilityPrefab, movementAbilitySpawnPoint.position, movementAbilitySpawnPoint.rotation, movementAbilitySpawnPoint);
+            movementAbilityInstance = Instantiate(currentMovementMask.movementAbilityPrefab, movementAbilitySpawnPoint.position, movementAbilitySpawnPoint.rotation, movementAbilitySpawnPoint);
             movementAbilityComponent = movementAbilityInstance.GetComponent<BaseAbility>();
 
             if (movementAbilityComponent == null)
             {
-                Debug.LogError($"MaskManager: Movement ability prefab '{currentMask.movementAbilityPrefab.name}' does not have a BaseAbility component!");
+                Debug.LogError($"MaskManager: Movement ability prefab '{currentMovementMask.movementAbilityPrefab.name}' does not have a BaseAbility component!");
                 Destroy(movementAbilityInstance);
                 return;
             }
@@ -234,14 +330,28 @@ namespace Dwayne.Masks
         public bool UseCombatAbility()
         {
             if (weaponComponent == null)
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning("MaskManager: Cannot use combat ability - no weapon equipped!");
                 return false;
+            }
+
+            if (weaponComponent.FireAbility == null)
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning($"MaskManager: Cannot use combat ability - weapon '{weaponComponent.name}' has no fireAbility assigned!");
+                return false;
+            }
 
             Vector3 targetPosition = GetTargetPosition();
             bool used = weaponComponent.TryUseFireAbility(targetPosition);
 
-            if (showDebugLogs && used)
+            if (showDebugLogs)
             {
-                Debug.Log($"MaskManager: Used combat ability (Target: {targetPosition})");
+                if (used)
+                    Debug.Log($"MaskManager: Used combat ability '{weaponComponent.FireAbility.GetType().Name}' (Target: {targetPosition})");
+                else
+                    Debug.LogWarning($"MaskManager: Failed to use combat ability '{weaponComponent.FireAbility.GetType().Name}' - ability on cooldown or cannot be used");
             }
 
             return used;
@@ -265,6 +375,27 @@ namespace Dwayne.Masks
 
             return used;
         }
+
+        /// <summary>
+        /// Cancels the weapon's alt-fire ability (for channeled abilities).
+        /// </summary>
+        public void CancelAltCombatAbility()
+        {
+            if (weaponComponent == null || weaponComponent.AltFireAbility == null)
+                return;
+
+            weaponComponent.AltFireAbility.Cancel();
+
+            if (showDebugLogs)
+            {
+                Debug.Log("MaskManager: Cancelled alt combat ability");
+            }
+        }
+
+        /// <summary>
+        /// Gets the current alt combat ability.
+        /// </summary>
+        public BaseAbility CurrentAltCombatAbility => weaponComponent?.AltFireAbility;
 
         /// <summary>
         /// Uses the movement ability.
@@ -322,20 +453,35 @@ namespace Dwayne.Masks
         }
 
         /// <summary>
-        /// Gets the target position based on mouse raycast or forward direction.
+        /// Gets the target position based on camera aim (crosshair or mouse).
         /// </summary>
         private Vector3 GetTargetPosition()
         {
-            if (useMouseTargeting && mainCamera != null)
+            if (mainCamera != null)
             {
-                Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out RaycastHit hit, 1000f, targetingRaycastMask))
+                Ray ray;
+
+                if (useCrosshairAiming)
+                {
+                    // Raycast from center of screen (where crosshair would be)
+                    ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                }
+                else
+                {
+                    // Raycast from mouse position
+                    ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+                }
+
+                if (Physics.Raycast(ray, out RaycastHit hit, maxTargetDistance, targetingRaycastMask))
                 {
                     return hit.point;
                 }
+
+                // No hit - return point at default distance along the ray
+                return ray.origin + ray.direction * defaultTargetDistance;
             }
 
-            // Fallback to forward direction
+            // Fallback to forward direction if no camera
             return transform.position + transform.forward * defaultTargetDistance;
         }
 
@@ -349,18 +495,23 @@ namespace Dwayne.Masks
         }
 
         // Public getters for UI/other systems
-        public Mask CurrentMask => currentMask;
+        public Mask CurrentWeaponMask => currentWeaponMask;
+        public Mask CurrentMovementMask => currentMovementMask;
         public BaseWeapon CurrentWeapon => weaponComponent;
         public BaseAbility CurrentMovementAbility => movementAbilityComponent;
-        public bool HasMask => currentMask != null;
+        public bool HasWeaponMask => currentWeaponMask != null;
+        public bool HasMovementMask => currentMovementMask != null;
         public bool CanUseCombatAbility => weaponComponent != null;
         public bool CanUseMovementAbility => movementAbilityComponent != null && movementAbilityComponent.CanUse;
 
         /// <summary>Gets the array of available masks.</summary>
         public Mask[] AvailableMasks => availableMasks;
 
-        /// <summary>Gets the current mask index.</summary>
-        public int CurrentMaskIndex => currentMaskIndex;
+        /// <summary>Gets the current weapon mask index.</summary>
+        public int WeaponMaskIndex => weaponMaskIndex;
+
+        /// <summary>Gets the current movement mask index.</summary>
+        public int MovementMaskIndex => movementMaskIndex;
 
         /// <summary>Gets the number of available masks.</summary>
         public int MaskCount => availableMasks != null ? availableMasks.Length : 0;

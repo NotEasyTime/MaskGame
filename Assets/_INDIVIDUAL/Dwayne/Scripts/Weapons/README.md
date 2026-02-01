@@ -4,16 +4,23 @@
 
 ## Option 1: Use an existing weapon type
 
-### Hitscan (instant raycast)
+### Universal Weapon (works with any ability - hitscan or projectile)
 1. Create an empty GameObject (e.g. "Rifle").
-2. Add component **HitscanWeapon**.
-3. Set **Damage**, **Range**, **Cooldown**, **Spread** (optional) in the Inspector.
-4. From your input/character script, call:
-   - `weapon.Fire(firePoint.position, firePoint.forward)` for tap fire, or
-   - `weapon.BeginCharge(firePoint.position, firePoint.forward)` then `weapon.ReleaseCharge()` for charge fire.
-5. Optionally assign a child Transform as the fire point and use its position/forward.
+2. Add component **UniversalWeapon**.
+3. **(Optional)** Assign a **BaseAbility** to **Fire Ability** or **Alt Fire Ability**:
+   - **Hitscan abilities**: FireSpreadAbility, FireFocusAbility, etc. (instant raycast attacks)
+   - **Projectile abilities**: GenericProjectileAbility, IceProjectileAbility, etc. (spawns projectiles)
+   - **If no ability is assigned**, the weapon falls back to built-in fire logic
+4. Configure **Fallback Fire Mode** (when no ability is assigned):
+   - **Hitscan**: Instant raycast using weapon's Damage/Range/Fallback Hit Mask settings
+   - **Projectile**: Spawns projectile from pool using Fallback Projectile Prefab/Speed settings
+5. Set **Cooldown**, **Damage**, **Range**, and other weapon settings as needed.
+6. From your input/character script, call:
+   - `weapon.TryUseFireAbility(targetPosition)` - uses fireAbility if assigned, otherwise uses fallback fire
+   - `weapon.TryUseAltFireAbility(targetPosition)` - uses altFireAbility if assigned, otherwise uses fallback fire
+   - `weapon.Fire(firePoint.position, firePoint.forward)` - directly calls weapon fire logic
 
-### Projectile (spawns a projectile)
+### Projectile Weapon (legacy - only works with ProjectileAbility)
 1. **Projectile prefab:** Create a prefab with:
    - A **Rigidbody** (required by `BaseProjectile`).
    - A collider (Trigger or solid).
@@ -21,6 +28,8 @@
 2. Create an empty GameObject and add **ProjectileWeapon**.
 3. Assign the projectile prefab to **Projectile Prefab**, set **Projectile Speed**, **Damage**, **Range**, etc.
 4. Call `weapon.Fire(origin, direction)` (or charge flow) from input.
+
+**Note:** UniversalWeapon is recommended as it works with both hitscan and projectile abilities.
 
 ## Option 2: Create a custom weapon
 
