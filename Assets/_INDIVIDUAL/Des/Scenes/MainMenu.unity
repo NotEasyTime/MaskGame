@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f5047eb2fe08db45aa27280898df0f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Managers.SoundManager
-  masterVolume: 1
+  masterVolume: 0.215
   maxConcurrentSFX: 8
   dontDestroyOnLoad: 1
   persistVolume: 1
