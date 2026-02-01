@@ -8,11 +8,18 @@ namespace Dwayne.Masks
     /// <summary>
     /// Manages the player's current mask, including weapon (combat ability) and movement ability.
     /// Allows separate usage of combat and movement abilities.
+    /// Supports switching between multiple masks.
     /// </summary>
     public class MaskManager : MonoBehaviour
     {
-        [Header("Current Mask")]
-        [SerializeField] private Mask currentMask;
+        [Header("Masks")]
+        [Tooltip("Array of available masks that the player can switch between")]
+        [SerializeField] private Mask[] availableMasks;
+
+        [Tooltip("Index of the currently equipped mask")]
+        [SerializeField] private int currentMaskIndex = 0;
+
+        private Mask currentMask;
 
         [Header("Spawn Points")]
         [Tooltip("Where to spawn the weapon (e.g., hand transform)")]
@@ -55,9 +62,18 @@ namespace Dwayne.Masks
             if (movementAbilitySpawnPoint == null)
                 movementAbilitySpawnPoint = transform;
 
-            // Equip the initial mask if set
-            if (currentMask != null)
-                EquipMask(currentMask);
+            // Validate masks array
+            if (availableMasks == null || availableMasks.Length == 0)
+            {
+                Debug.LogError("MaskManager: No masks assigned! Please add masks to the availableMasks array.");
+                return;
+            }
+
+            // Clamp mask index to valid range
+            currentMaskIndex = Mathf.Clamp(currentMaskIndex, 0, availableMasks.Length - 1);
+
+            // Equip the initial mask
+            EquipMaskByIndex(currentMaskIndex);
         }
 
         /// <summary>
@@ -86,6 +102,54 @@ namespace Dwayne.Masks
             {
                 Debug.Log($"MaskManager: Equipped mask '{mask.maskName}' (Weapon: {weaponComponent?.GetType().Name}, Movement: {movementAbilityComponent?.GetType().Name})");
             }
+        }
+
+        /// <summary>
+        /// Equips a mask by index from the availableMasks array.
+        /// </summary>
+        public void EquipMaskByIndex(int index)
+        {
+            if (availableMasks == null || availableMasks.Length == 0)
+            {
+                Debug.LogError("MaskManager: No masks available to equip!");
+                return;
+            }
+
+            if (index < 0 || index >= availableMasks.Length)
+            {
+                Debug.LogError($"MaskManager: Mask index {index} out of range (0-{availableMasks.Length - 1})!");
+                return;
+            }
+
+            currentMaskIndex = index;
+            EquipMask(availableMasks[index]);
+        }
+
+        /// <summary>
+        /// Switches to the next mask in the array (wraps around to first).
+        /// </summary>
+        public void NextMask()
+        {
+            if (availableMasks == null || availableMasks.Length == 0)
+                return;
+
+            currentMaskIndex = (currentMaskIndex + 1) % availableMasks.Length;
+            EquipMaskByIndex(currentMaskIndex);
+        }
+
+        /// <summary>
+        /// Switches to the previous mask in the array (wraps around to last).
+        /// </summary>
+        public void PreviousMask()
+        {
+            if (availableMasks == null || availableMasks.Length == 0)
+                return;
+
+            currentMaskIndex--;
+            if (currentMaskIndex < 0)
+                currentMaskIndex = availableMasks.Length - 1;
+
+            EquipMaskByIndex(currentMaskIndex);
         }
 
         /// <summary>
@@ -291,6 +355,15 @@ namespace Dwayne.Masks
         public bool HasMask => currentMask != null;
         public bool CanUseCombatAbility => weaponComponent != null;
         public bool CanUseMovementAbility => movementAbilityComponent != null && movementAbilityComponent.CanUse;
+
+        /// <summary>Gets the array of available masks.</summary>
+        public Mask[] AvailableMasks => availableMasks;
+
+        /// <summary>Gets the current mask index.</summary>
+        public int CurrentMaskIndex => currentMaskIndex;
+
+        /// <summary>Gets the number of available masks.</summary>
+        public int MaskCount => availableMasks != null ? availableMasks.Length : 0;
 
         /// <summary>
         /// Gets the element type of the currently equipped combat ability.
