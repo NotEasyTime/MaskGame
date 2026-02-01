@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Dwayne.Abilities;
 using Dwayne.Weapons;
 using Element;
 using Interfaces;
+using UnityEngine.UI;
 
 namespace Dwayne.Masks
 {
@@ -13,6 +15,18 @@ namespace Dwayne.Masks
     /// </summary>
     public class MaskManager : MonoBehaviour
     {
+        public Image ability;
+        public Image movement;
+        
+        private List<Color> colors = new List<Color>()
+        {
+            new Color(0.678f, 0.847f, 0.902f, 1f),
+            Color.green,
+            Color.red,
+            Color.blue
+            
+        };
+        
         [Header("Masks")]
         [Tooltip("Array of available masks that the player can switch between")]
         [SerializeField] private Mask[] availableMasks;
@@ -120,6 +134,11 @@ namespace Dwayne.Masks
 
             weaponMaskIndex = index;
             currentWeaponMask = mask;
+            
+            if (ability != null && index < colors.Count)
+            {
+                ability.color = colors[index]; 
+            }
 
             // Spawn weapon
             SpawnWeapon();
@@ -159,6 +178,11 @@ namespace Dwayne.Masks
 
             movementMaskIndex = index;
             currentMovementMask = mask;
+            
+            if (movement != null && index < colors.Count)
+            {
+                movement.color = colors[index]; 
+            }
 
             // Spawn movement ability
             SpawnMovementAbility();
