@@ -28,9 +28,6 @@ namespace Dwayne.Abilities
             Vector3 direction = targetPosition != Vector3.zero
                 ? (targetPosition - origin).normalized
                 : user.transform.forward;
-            direction.y = 0f;
-            if (direction.sqrMagnitude < 0.01f)
-                direction = user.transform.forward;
 
             // Spawn VFX at user
             SpawnVFXAtUser(user);

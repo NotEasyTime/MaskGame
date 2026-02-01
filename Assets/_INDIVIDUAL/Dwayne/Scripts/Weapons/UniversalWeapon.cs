@@ -12,15 +12,44 @@ namespace Dwayne.Weapons
     /// </summary>
     public class UniversalWeapon : BaseWeapon
     {
+        public override bool Fire(Vector3 origin, Vector3 direction)
+        {
+            bool fired = base.Fire(origin, direction);
+            if (fired && fireAbility != null && currentShots == 0)
+                nextRefillTime = Time.time + fireAbility.CooldownDuration;
+            return fired;
+        }
+
+        public override bool ReleaseCharge()
+        {
+            bool fired = base.ReleaseCharge();
+            if (fired && fireAbility != null && currentShots == 0)
+                nextRefillTime = Time.time + fireAbility.CooldownDuration;
+            return fired;
+        }
+
         /// <summary>
-        /// Override to fall back to weapon's Fire() method if fireAbility is null.
+        /// When fireAbility is set: uses magazine size as ability charges; when mag is empty, refill cooldown uses the ability's CooldownDuration.
+        /// Alt-fire is unchanged (no magazine). Falls back to Fire() when fireAbility is null.
         /// </summary>
         public override bool TryUseFireAbility(Vector3 targetPosition = default)
         {
-            // If ability exists, use it
             if (fireAbility != null)
             {
-                return base.TryUseFireAbility(targetPosition);
+                // Use magazine as ability charges: require ammo and weapon fire cooldown (not ability's per-use cooldown)
+                if (currentShots <= 0 || (fireCooldown > 0f && Time.time < nextFireTime))
+                    return false;
+
+                bool success = fireAbility.UseFromWeapon(Owner, targetPosition);
+                if (success)
+                {
+                    currentShots--;
+                    if (fireCooldown > 0f)
+                        nextFireTime = Time.time + fireCooldown;
+                    if (currentShots == 0)
+                        nextRefillTime = Time.time + fireAbility.CooldownDuration;
+                }
+                return success;
             }
 
             // Fall back to weapon's built-in Fire() method
@@ -59,22 +88,11 @@ namespace Dwayne.Weapons
 
         protected override bool DoFire(Vector3 origin, Vector3 direction, float charge)
         {
-            // If fireAbility is assigned, use it
+            // If fireAbility is assigned, use it (magazine is consumed by Fire()/ReleaseCharge(); refill uses ability cooldown)
             if (fireAbility != null)
             {
-                // Check if ability can be used
-                if (!fireAbility.CanUse)
-                {
-                    return false;
-                }
-
-                // Calculate target position from origin and direction
                 Vector3 targetPosition = origin + direction * range;
-
-                // Use the ability - it will handle the attack (hitscan or projectile)
-                bool success = fireAbility.Use(Owner, targetPosition);
-
-                return success;
+                return fireAbility.UseFromWeapon(Owner, targetPosition);
             }
 
             // Fall back to BaseWeapon's built-in fire logic

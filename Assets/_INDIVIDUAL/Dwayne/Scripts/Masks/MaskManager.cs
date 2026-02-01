@@ -33,14 +33,17 @@ namespace Dwayne.Masks
         [SerializeField] private Transform movementAbilitySpawnPoint;
 
         [Header("Targeting")]
-        [Tooltip("Use mouse raycast for ability targeting")]
-        [SerializeField] private bool useMouseTargeting = true;
+        [Tooltip("Use screen center (crosshair) for aiming instead of mouse position")]
+        [SerializeField] private bool useCrosshairAiming = true;
 
-        [Tooltip("Layer mask for mouse raycast")]
+        [Tooltip("Layer mask for targeting raycast")]
         [SerializeField] private LayerMask targetingRaycastMask = ~0;
 
-        [Tooltip("Default targeting distance when mouse raycast fails")]
-        [SerializeField] private float defaultTargetDistance = 10f;
+        [Tooltip("Maximum targeting distance for raycast")]
+        [SerializeField] private float maxTargetDistance = 100f;
+
+        [Tooltip("Default targeting distance when raycast doesn't hit anything")]
+        [SerializeField] private float defaultTargetDistance = 50f;
 
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = false;
@@ -374,6 +377,27 @@ namespace Dwayne.Masks
         }
 
         /// <summary>
+        /// Cancels the weapon's alt-fire ability (for channeled abilities).
+        /// </summary>
+        public void CancelAltCombatAbility()
+        {
+            if (weaponComponent == null || weaponComponent.AltFireAbility == null)
+                return;
+
+            weaponComponent.AltFireAbility.Cancel();
+
+            if (showDebugLogs)
+            {
+                Debug.Log("MaskManager: Cancelled alt combat ability");
+            }
+        }
+
+        /// <summary>
+        /// Gets the current alt combat ability.
+        /// </summary>
+        public BaseAbility CurrentAltCombatAbility => weaponComponent?.AltFireAbility;
+
+        /// <summary>
         /// Uses the movement ability.
         /// </summary>
         public bool UseMovementAbility()
@@ -429,20 +453,35 @@ namespace Dwayne.Masks
         }
 
         /// <summary>
-        /// Gets the target position based on mouse raycast or forward direction.
+        /// Gets the target position based on camera aim (crosshair or mouse).
         /// </summary>
         private Vector3 GetTargetPosition()
         {
-            if (useMouseTargeting && mainCamera != null)
+            if (mainCamera != null)
             {
-                Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out RaycastHit hit, 1000f, targetingRaycastMask))
+                Ray ray;
+
+                if (useCrosshairAiming)
+                {
+                    // Raycast from center of screen (where crosshair would be)
+                    ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                }
+                else
+                {
+                    // Raycast from mouse position
+                    ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+                }
+
+                if (Physics.Raycast(ray, out RaycastHit hit, maxTargetDistance, targetingRaycastMask))
                 {
                     return hit.point;
                 }
+
+                // No hit - return point at default distance along the ray
+                return ray.origin + ray.direction * defaultTargetDistance;
             }
 
-            // Fallback to forward direction
+            // Fallback to forward direction if no camera
             return transform.position + transform.forward * defaultTargetDistance;
         }
 

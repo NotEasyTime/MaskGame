@@ -113,6 +113,16 @@ namespace Dwayne.Abilities
             return used;
         }
 
+        /// <summary>
+        /// Runs the ability effect without cooldown check or setting lastUseTime.
+        /// Used by weapons that treat magazine size as "charges" and apply this ability's CooldownDuration only when refilling (mag empty).
+        /// </summary>
+        public virtual bool UseFromWeapon(GameObject user, Vector3 targetPosition = default)
+        {
+            lastUser = user;
+            return DoUse(user, targetPosition);
+        }
+
         public virtual void Cancel()
         {
             // Override in channeled abilities to interrupt.

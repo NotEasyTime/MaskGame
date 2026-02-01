@@ -73,7 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Weapons.HitscanWeapon
   fireCooldown: 0.5
-  magazineSize: 30
+  magazineSize: 5
   refillCooldown: 1.5
   damage: 10
   range: 100
@@ -84,7 +84,7 @@ MonoBehaviour:
   minChargeToFire: 0
   fullChargeDamageMultiplier: 1.5
   fireAbility: {fileID: 1321085287342567240, guid: e0be7116ba090f841829a47d9732d6cc, type: 3}
-  altFireAbility: {fileID: 0}
+  altFireAbility: {fileID: 7778806855962915048, guid: 64e68aeca70417b40b9041274b837ad0, type: 3}
   owner: {fileID: 0}
   fallbackFireMode: 1
   fallbackHitMask:
