@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 3722158713033904573}
   - component: {fileID: 9147797831230886020}
   - component: {fileID: 156614525989543637}
+  - component: {fileID: 4615032937793560223}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -261,15 +262,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyType1: {fileID: 6198441749571743864, guid: ef741a6d417d94140bfbe7f5b315273a, type: 3}
-  enemyType2: {fileID: 8088275366210917788, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
-  enemyType3: {fileID: 626207675928076746, guid: 7320cd47702b849ba8430852c5cead1e, type: 3}
+  enemyType2: {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
+  enemyType3: {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
   maxEnemies: 50
   minSpawnDistance: 15
   maxSpawnDistance: 30
   spawnInterval: 1
-  chanceEnemy1: 0.692
-  chanceEnemy2: 0.495
-  chanceEnemy3: 0.481
+  chanceEnemy1: 0.6
+  chanceEnemy2: 0.3
+  chanceEnemy3: 0.1
+--- !u!65 &4615032937793560223
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1382737036237916155}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0000001, y: 2, z: 1.0000002}
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &3736955665587948179
 GameObject:
   m_ObjectHideFlags: 0
