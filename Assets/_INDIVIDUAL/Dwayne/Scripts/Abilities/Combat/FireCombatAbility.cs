@@ -30,6 +30,9 @@ namespace Dwayne.Abilities
             if (baseDirection.sqrMagnitude < 0.01f)
                 baseDirection = user.transform.forward;
 
+            // Spawn VFX at user when firing
+            SpawnVFXAtUser(user);
+
             float halfAngleRad = spreadAngleDeg * 0.5f * Mathf.Deg2Rad;
 
             for (int i = 0; i < pelletsPerShot; i++)
@@ -44,6 +47,9 @@ namespace Dwayne.Abilities
 
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, range, hitMask))
                 {
+                    // Spawn impact VFX on hit
+                    SpawnImpactVFX(hit.point, hit.normal);
+
                     var damagable = hit.collider.GetComponent<IDamagable>();
                     if (damagable != null && damagable.IsAlive)
                         damagable.TakeDamage(damage, hit.point, -direction, user);

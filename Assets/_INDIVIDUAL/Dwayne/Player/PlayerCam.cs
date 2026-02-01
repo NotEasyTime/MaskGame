@@ -42,6 +42,7 @@ namespace Player
         public float fovSmoothSpeed = 5f;
         
         [Header("References")]
+        [Tooltip("Reference to the Player GameObject (parent with Rigidbody)")]
         public Transform orientation;
 
         private Vector2 lookInput;
@@ -72,11 +73,12 @@ namespace Player
         public void OnLook(InputValue value)
         {
             lookInput = value.Get<Vector2>();
-            HandleMouseLook();
         }
 
         private void Update()
         {
+            HandleMouseLook();
+
             if (enableFOVKick && cam != null && rb != null)
                 HandleFOVKick();
         }
@@ -94,8 +96,10 @@ namespace Player
             xRotation -= mouseY;
             xRotation = Mathf.Clamp(xRotation, -maxVerticalAngle, maxVerticalAngle);
 
-            // Rotate cam and orientation
+            // Rotate camera up/down and left/right
             transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+
+            // Rotate player body left/right (Y-axis only)
             if (orientation != null)
                 orientation.rotation = Quaternion.Euler(0, yRotation, 0);
         }

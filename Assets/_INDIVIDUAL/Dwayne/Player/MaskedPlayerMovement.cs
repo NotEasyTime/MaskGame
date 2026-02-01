@@ -7,7 +7,6 @@ namespace Player
     public class MaskedPlayerMovement : MonoBehaviour
     {
         [Header("Movement Settings")]
-        public Transform orientation;
         public float walkSpeed = 20f;
         public float sprintSpeed = 30f;
         public float maxWalkSpeed = 25f;
@@ -56,7 +55,6 @@ namespace Player
 
         [Header("Jumping & Gravity")]
         public float jumpForce = 15f;
-        public float jumpCooldown = 0.2f;
         public float gravity = -35f;
         public float coyoteTime = 0.12f;
         public float jumpBufferTime = 0.12f;
@@ -102,7 +100,6 @@ namespace Player
         private Vector3 lastGroundVelocity;
         private float landingDelay;
         private bool jumpHeld;
-        private float jumpCooldownTimer;
 
         // Landing prediction
         private Vector3 predictedLandingPoint;
@@ -129,6 +126,9 @@ namespace Player
 
             dashesRemaining = maxDashes;
             canJump = true;
+
+            // Start ground check coroutine
+            StartCoroutine(GroundCheckCoroutine());
         }
         
         void Update()
@@ -144,39 +144,26 @@ namespace Player
             else
                 rb.linearDamping = 0.05f;
 
-            // Jump logic - hold to jump repeatedly
-            if (jumpHeld && isGrounded && canJump && !isSliding)
-            {
-                Jump();
-                canJump = false;
-                jumpCooldownTimer = jumpCooldown;
-            }
             // Jump buffer logic (for single press jumps)
-            else if (jumpBufferCounter > 0 && coyoteCounter > 0 && !isSliding)
+            if (jumpBufferCounter > 0 && coyoteCounter > 0 && !isSliding)
             {
                 Jump();
             }
 
-            // Update jump cooldown
-            if (jumpCooldownTimer > 0)
-            {
-                jumpCooldownTimer -= Time.deltaTime;
-                if (jumpCooldownTimer <= 0)
-                    canJump = true;
-            }
+            // Variable jump height - release jump early for shorter jump
             if (!jumpHeld && rb.linearVelocity.y > 0)
             {
-                rb.AddForce(Vector3.up * (gravity * 0.5f), ForceMode.Acceleration); // Extra fall gravity when releasing jump
+                rb.AddForce(Vector3.up * (gravity * 0.5f), ForceMode.Acceleration);
             }
         }
-
+        
         void FixedUpdate()
         {
             if (isDashing) { HandleDash(); return; }
             if (isSlamming) { HandleGroundSlam(); return; }
-            
+
             UpdateTimers();
-            
+
             Vector3 wishDir = GetWishDir();
 
             float dt = Time.fixedDeltaTime;
@@ -204,16 +191,8 @@ namespace Player
             ApplyDrag();
             MovePlayer();
             EnforceSpeedCap();
-            
+
             groundContacts = 0;
-            
-            bool groundedNow = CheckGrounded();
-
-            if (groundedNow && !isGrounded)
-                OnLanding();
-
-            isGrounded = groundedNow;
-
         }
         
         private void LateUpdate()
@@ -246,7 +225,7 @@ namespace Player
         
         Vector3 GetWishDir()
         {
-            Vector3 wish = orientation.forward * moveInput.y + orientation.right * moveInput.x;
+            Vector3 wish = transform.forward * moveInput.y + transform.right * moveInput.x;
             wish.y = 0f;
             return wish.sqrMagnitude > 0.0001f ? wish.normalized : Vector3.zero;
         }
@@ -456,15 +435,7 @@ namespace Player
             float radius = 0.45f;
             float distance = 0.3f;
 
-            return Physics.SphereCast(
-                origin,
-                radius,
-                Vector3.down,
-                out RaycastHit hit,
-                distance,
-                groundLayer,
-                QueryTriggerInteraction.Ignore
-            ) && hit.normal.y > 0.6f;
+            return Physics.SphereCast( origin, radius, Vector3.down, out RaycastHit hit, distance, groundLayer, QueryTriggerInteraction.Ignore) && hit.normal.y > 0.6f;
         }
 
 
@@ -736,6 +707,8 @@ namespace Player
             }
 
             rb.linearVelocity = new Vector3(hv.x, v.y, hv.z);
+            
+            ResetJump();
         }
 
         // Public getters for UI/other systems
@@ -752,5 +725,21 @@ namespace Player
         public Vector3 GetPredictedLandingPoint() => predictedLandingPoint;
         public float GetPredictedLandingTime() => predictedLandingTime;
         public bool HasPredictedLanding() => hasPredictedLanding && !isGrounded;
+
+        // Coroutines
+        System.Collections.IEnumerator GroundCheckCoroutine()
+        {
+            while (true)
+            {
+                yield return new WaitForFixedUpdate();
+
+                bool groundedNow = CheckGrounded();
+
+                if (groundedNow && !isGrounded)
+                    OnLanding();
+
+                isGrounded = groundedNow;
+            }
+        }
     }
 }
