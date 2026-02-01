@@ -18,11 +18,18 @@ namespace Dwayne.Weapons
         [SerializeField] protected LayerMask hitMask = ~0;
         [SerializeField] protected float gravity = 0f;
 
+        [Header("Trail VFX (optional, can be set by ability)")]
+        [Tooltip("Prefab to spawn along the projectile path. Leave empty if set via SetTrailVFX from ability.")]
+        [SerializeField] protected GameObject trailVFXPrefab;
+        [SerializeField] protected float trailSpawnInterval = 0.05f;
+        [SerializeField] protected float trailVFXLifetime = 0.5f;
+
         protected float damage;
         protected float speed;
         protected Vector3 direction;
         protected GameObject owner;
         protected float spawnTime;
+        protected float lastTrailSpawnTime;
         protected Rigidbody rb;
         protected bool launched;
 
@@ -73,6 +80,17 @@ namespace Dwayne.Weapons
             }
         }
 
+        /// <summary>
+        /// Optional trail VFX to spawn along the path. Call after Launch from ProjectileAbility when trailVFX is set.
+        /// </summary>
+        public virtual void SetTrailVFX(GameObject prefab, float interval = 0.05f, float lifetime = 0.5f)
+        {
+            trailVFXPrefab = prefab;
+            trailSpawnInterval = interval > 0 ? interval : 0.05f;
+            trailVFXLifetime = lifetime > 0 ? lifetime : 0.5f;
+            lastTrailSpawnTime = Time.time;
+        }
+
         public virtual void Launch(Vector3 origin, Vector3 direction, float speed, float damage, GameObject owner = null)
         {
             this.damage = damage;
@@ -80,6 +98,7 @@ namespace Dwayne.Weapons
             this.direction = direction.normalized;
             this.owner = owner;
             spawnTime = Time.time;
+            lastTrailSpawnTime = Time.time;
             launched = true;
 
             transform.position = origin;
@@ -101,6 +120,15 @@ namespace Dwayne.Weapons
 
             if (gravity != 0f && rb != null)
                 rb.linearVelocity += Vector3.down * (gravity * Time.deltaTime);
+
+            // Spawn trail VFX along path
+            if (trailVFXPrefab != null && Time.time - lastTrailSpawnTime >= trailSpawnInterval)
+            {
+                GameObject trail = Instantiate(trailVFXPrefab, transform.position, transform.rotation);
+                if (trailVFXLifetime > 0f)
+                    Destroy(trail, trailVFXLifetime);
+                lastTrailSpawnTime = Time.time;
+            }
         }
 
         /// <summary>

@@ -48,8 +48,8 @@ namespace Dwayne.Abilities
                 }
             }
 
-            // Spawn impact VFX at AOE center
-            SpawnImpactVFX(end, Vector3.up);
+            // Spawn impact VFX at AOE center (scale by AOE radius)
+            SpawnImpactVFX(end, Vector3.up, radius);
 
             Collider[] hits = Physics.OverlapSphere(end, radius, hitMask);
 

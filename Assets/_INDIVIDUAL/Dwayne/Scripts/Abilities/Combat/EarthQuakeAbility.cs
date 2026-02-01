@@ -162,7 +162,7 @@ namespace Dwayne.Abilities
             }
 
             // Spawn impact VFX at center
-            SpawnImpactVFX(center, Vector3.up);
+            SpawnImpactVFX(center, Vector3.up, radius);
 
             // Set lastUser for effect attribution (in case another ability was used while charging)
             lastUser = chargingUser;

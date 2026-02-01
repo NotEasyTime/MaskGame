@@ -46,18 +46,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.EarthQuakeAbility
   elementType: 0
   cooldownDuration: 1
-  spawnVFX: {fileID: 0}
+  spawnVFX: {fileID: 8719263370430895187, guid: 7d34a61c458188a47ba85f8bcac01f94, type: 3}
   projectileVFX: {fileID: 0}
   impactVFX: {fileID: 0}
   trailVFX: {fileID: 0}
-  vfxLifetime: 2
-  canSlow: 0
-  slowMultiplier: 0.5
-  slowDuration: 2
+  vfxLifetime: 4
+  canModifySpeed: 0
+  speedMultiplier: 0.5
+  speedDuration: 2
+  applySpeedToSelf: 0
+  selfSpeedMultiplier: 1.5
+  selfSpeedDuration: 2
   canDoT: 1
   dotDamagePerTick: 5
   dotTickInterval: 0.5
   dotDuration: 4
+  applyDoTToSelf: 0
+  selfDotDamagePerTick: 2
+  selfDotTickInterval: 0.5
+  selfDotDuration: 2
   chargeTime: 2
   autoReleaseAtFullCharge: 1
   radius: 10

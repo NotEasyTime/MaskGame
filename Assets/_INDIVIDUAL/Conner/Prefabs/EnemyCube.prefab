@@ -128,13 +128,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyCube
   maxHealth: 10
-  currentHealth: 0
+  currentHealth: 10
   player: {fileID: 0}
   fireRate: 1
   projectilePrefab: {fileID: 6153752351596253516, guid: 37814adf098199941854cdcc23bc6325, type: 3}
   projectileSpeed: 11
   rotationSpeed: 5
   spawnOffset: {x: 0, y: 0, z: 2}
+  projectileDamage: 1
+  knockbackDistance: 2
+  knockbackDuration: 0.2
 --- !u!135 &856659723682486543
 SphereCollider:
   m_ObjectHideFlags: 0

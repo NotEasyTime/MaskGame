@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System; // Required for Action
+using System.Collections;
 using Interfaces;
+using Dwayne.Effects;
+using Dwayne.Interfaces;
 
 public class EnemyCube : MonoBehaviour, IDamagable
 {
@@ -20,20 +23,33 @@ public class EnemyCube : MonoBehaviour, IDamagable
 
     [Header("AI")]
     [SerializeField] private Transform player;
-    [SerializeField] private float fireRate = 1f; 
+    [SerializeField] private float fireRate = 1f;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 10f;
-    [SerializeField] private float rotationSpeed = 5f; 
-    [SerializeField] private Vector3 spawnOffset = new Vector3(0, 0.5f, 1f); 
+    [SerializeField] private float rotationSpeed = 5f;
+    [SerializeField] private Vector3 spawnOffset = new Vector3(0, 0.5f, 1f);
+
+    [Header("Combat")]
+    [SerializeField] private float projectileDamage = 10f;
+    [SerializeField] private float knockbackDistance = 2f;
+    [SerializeField] private float knockbackDuration = 0.2f;
 
     private NavMeshAgent agent;
     private float fireCooldown = 0f;
     private bool playerInRange = false;
+    private float baseSpeed;
+    private SpeedEffect speedEffect;
 
     private void Awake()
     {
         currentHealth = maxHealth;
         agent = GetComponent<NavMeshAgent>();
+        speedEffect = GetComponent<SpeedEffect>();
+
+        if (agent != null)
+        {
+            baseSpeed = agent.speed;
+        }
 
         if (player == null)
         {
@@ -48,6 +64,12 @@ public class EnemyCube : MonoBehaviour, IDamagable
         if (!IsAlive || player == null || agent == null || !agent.isOnNavMesh)
             return;
 
+        // Apply speed effect modifier
+        if (speedEffect != null && agent != null)
+        {
+            agent.speed = baseSpeed * speedEffect.GetMovementMultiplier();
+        }
+
         if (playerInRange)
         {
             agent.isStopped = true;
@@ -58,7 +80,7 @@ public class EnemyCube : MonoBehaviour, IDamagable
         {
             agent.isStopped = false;
             agent.SetDestination(player.position);
-            RotateTowards(agent.steeringTarget); 
+            RotateTowards(agent.steeringTarget);
         }
 
         // DEBUG KILL
@@ -74,14 +96,20 @@ public class EnemyCube : MonoBehaviour, IDamagable
         if (fireCooldown <= 0f)
         {
             Vector3 spawnPos = transform.position + transform.TransformDirection(spawnOffset);
-            GameObject projectile = Instantiate(projectilePrefab, spawnPos, transform.rotation);
-            Rigidbody rb = projectile.GetComponent<Rigidbody>();
+            Vector3 targetCenter = player.position + Vector3.up;
+            Vector3 fireDirection = (targetCenter - spawnPos).normalized;
 
-            if (rb != null)
+            GameObject projectileObj = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(fireDirection));
+            var projectile = projectileObj.GetComponent<IProjectile>();
+            if (projectile != null)
             {
-                Vector3 targetCenter = player.position + Vector3.up; 
-                Vector3 fireDirection = (targetCenter - spawnPos).normalized;
-                rb.linearVelocity = fireDirection * projectileSpeed;
+                projectile.Launch(spawnPos, fireDirection, projectileSpeed, projectileDamage, gameObject);
+            }
+            else
+            {
+                Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
+                if (rb != null)
+                    rb.linearVelocity = fireDirection * projectileSpeed;
             }
 
             fireCooldown = 1f / fireRate;
@@ -107,9 +135,17 @@ public class EnemyCube : MonoBehaviour, IDamagable
         if (!IsAlive) return 0;
 
         currentHealth -= amount;
-        
+
         // Trigger the damaged event for UI or FX systems
         OnDamaged?.Invoke(amount, hitPoint, source);
+
+        // Apply knockback using the hit direction
+        if (knockbackDistance > 0 && hitDirection != Vector3.zero)
+        {
+            Vector3 targetPos = transform.position + (hitDirection.normalized * knockbackDistance);
+            targetPos.y = transform.position.y;
+            StartCoroutine(KnockbackEffect(targetPos));
+        }
 
         if (currentHealth <= 0)
         {
@@ -120,6 +156,28 @@ public class EnemyCube : MonoBehaviour, IDamagable
         }
 
         return amount;
+    }
+
+    private IEnumerator KnockbackEffect(Vector3 targetPosition)
+    {
+        Vector3 startPos = transform.position;
+        float elapsed = 0f;
+
+        if (agent != null) agent.enabled = false;
+
+        while (elapsed < knockbackDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / knockbackDuration;
+            transform.position = Vector3.Lerp(startPos, targetPosition, t);
+            yield return null;
+        }
+
+        if (agent != null)
+        {
+            agent.enabled = true;
+            if (agent.isOnNavMesh) agent.ResetPath();
+        }
     }
 
     private void Die()

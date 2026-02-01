@@ -149,16 +149,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySphere
   maxHealth: 20
-  currentHealth: 1
+  currentHealth: 20
   splitPrefab: {fileID: 6198441749571743864}
   splitCount: 2
   splitDepth: 2
   sizeMultiplier: 0.6
   player: {fileID: 0}
-  contactDamage: 10
+  contactDamage: 2
   knockbackDistance: 8
   knockbackDuration: 0.2
-  downForce: 20
   popHeight: 1.2
   popDuration: 0.25
   splitSpreadRadius: 2
+  teleportCheckHeight: 4
+  teleportRadius: 1.5
+  teleportCooldown: 1
