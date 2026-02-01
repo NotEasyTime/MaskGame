@@ -107,36 +107,39 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveInput.magnitude > 0)
         {
-            float dot = Vector3.Dot(currentHorizontalVel.normalized, moveDir.normalized);
+            Vector3 moveDirNormalized = moveDir.normalized;
+            Vector3 currentHorizontalVelNormalized = currentHorizontalVel.normalized;
 
-            if (dot < -0.1f) 
-                rb.AddForce(moveDir.normalized * counterInputForce, ForceMode.Acceleration);
+            float dot = Vector3.Dot(currentHorizontalVelNormalized, moveDirNormalized);
+
+            if (dot < -0.1f)
+                rb.AddForce(moveDirNormalized * counterInputForce, ForceMode.Acceleration);
             else if (isGrounded)
             {
                 if (currentHorizontalVel.magnitude <= currentMax + 0.1f)
                 {
-                    Vector3 newVel = moveDir.normalized * targetSpeed;
+                    Vector3 newVel = moveDirNormalized * targetSpeed;
                     rb.linearVelocity = new Vector3(newVel.x, rb.linearVelocity.y, newVel.z);
                 }
             }
-            else 
+            else
             {
-                float projection = Vector3.Dot(currentHorizontalVel, moveDir.normalized);
+                float projection = Vector3.Dot(currentHorizontalVel, moveDirNormalized);
                 if (projection < currentMax)
-                    rb.AddForce(moveDir.normalized * targetSpeed * 2f * airMultiplier, ForceMode.Force);
+                    rb.AddForce(moveDirNormalized * targetSpeed * 2f * airMultiplier, ForceMode.Force);
             }
 
             if (!isGrounded && currentHorizontalVel.magnitude > 0.1f)
-                ApplyAirStrafing(moveDir, currentHorizontalVel);
+                ApplyAirStrafing(moveDirNormalized, currentHorizontalVelNormalized, currentHorizontalVel);
         }
     }
 
-    void ApplyAirStrafing(Vector3 moveDir, Vector3 currentHorizontalVel)
+    void ApplyAirStrafing(Vector3 moveDirNormalized, Vector3 currentHorizontalVelNormalized, Vector3 currentHorizontalVel)
     {
-        float dot = Vector3.Dot(currentHorizontalVel.normalized, moveDir.normalized);
+        float dot = Vector3.Dot(currentHorizontalVelNormalized, moveDirNormalized);
         if (dot < 0) return;
 
-        Vector3 targetVelocity = moveDir * currentHorizontalVel.magnitude;
+        Vector3 targetVelocity = moveDirNormalized * currentHorizontalVel.magnitude;
         Vector3 velocityDiff = targetVelocity - currentHorizontalVel;
         rb.AddForce(velocityDiff * strafeIntensity, ForceMode.Acceleration);
     }

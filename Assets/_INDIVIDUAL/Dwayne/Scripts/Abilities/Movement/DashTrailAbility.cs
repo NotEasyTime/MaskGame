@@ -29,6 +29,9 @@ namespace Dwayne.Abilities
             if (direction.sqrMagnitude < 0.01f)
                 direction = user.transform.forward;
 
+            // Spawn trail VFX at starting position
+            SpawnTrailVFX(user.transform.position, Quaternion.LookRotation(direction));
+
             if (rb != null)
             {
                 Vector3 vel = direction * dashSpeed;
