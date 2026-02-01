@@ -22,7 +22,6 @@ namespace Enemies
         public bool isSpawning = true;
 
         private float nextSpawnTime;
-        private Transform playerTransform;
 
         private void Awake()
         {
@@ -32,15 +31,6 @@ namespace Enemies
                 return;
             }
             Instance = this;
-        }
-
-        private void Start()
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                playerTransform = player.transform;
-            }
         }
 
         private void Update()
@@ -65,7 +55,7 @@ namespace Enemies
 
         private Vector3 GetSpawnPosition()
         {
-            Vector3 basePosition = playerTransform != null ? playerTransform.position : Vector3.zero;
+            Vector3 basePosition = transform != null ? transform.position : Vector3.zero;
             Vector2 randomCircle = Random.insideUnitCircle.normalized * spawnDistance;
             return basePosition + new Vector3(randomCircle.x, 0, randomCircle.y);
         }
