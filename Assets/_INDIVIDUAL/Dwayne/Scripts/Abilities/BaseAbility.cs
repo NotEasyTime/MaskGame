@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 using Dwayne.Interfaces;
 using Dwayne.Effects;
@@ -34,6 +35,9 @@ namespace Dwayne.Abilities
 
         [Tooltip("How long VFX objects live before auto-destroying (0 = use particle lifetime)")]
         [SerializeField] protected float vfxLifetime = 2f;
+
+        [Tooltip("Scale impact VFX by (AOE radius * this). e.g. 0.5 = radius 10 → scale 5. Set 0 to use prefab scale only.")]
+        [SerializeField] protected float impactVFXScaleFactor = 0.5f;
 
         [Header("Speed Modifier - Targets")]
         [Tooltip("Can this ability apply speed modifier to targets?")]
@@ -140,14 +144,60 @@ namespace Dwayne.Abilities
         /// <summary>
         /// Spawns impact VFX at a hit point.
         /// </summary>
-        protected virtual void SpawnImpactVFX(Vector3 position, Vector3 normal)
+        /// <param name="position">World position (impact point).</param>
+        /// <param name="normal">Surface normal for rotation (e.g. hit.normal).</param>
+        /// <param name="aoRadius">AOE radius of the ability (e.g. explosion radius). When &gt; 0 and impactVFXScaleFactor &gt; 0, scales the VFX so it matches the AOE size. Also passed to PixPlays LocationVfx if present.</param>
+        protected virtual void SpawnImpactVFX(Vector3 position, Vector3 normal, float aoRadius = 0f)
         {
-            if (impactVFX != null)
+            if (impactVFX == null)
+                return;
+
+            Quaternion rotation = normal != Vector3.zero
+                ? Quaternion.LookRotation(normal)
+                : Quaternion.identity;
+            float scale = (aoRadius > 0f && impactVFXScaleFactor > 0f)
+                ? aoRadius * impactVFXScaleFactor
+                : 1f;
+            GameObject vfx = SpawnVFX(impactVFX, position, rotation, scale);
+
+            // If impact prefab uses PixPlays LocationVfx/BaseVfx, drive it with radius so AOE size matches
+            if (vfx != null && aoRadius > 0f)
+                TryPlayPixPlaysVfx(vfx, position, normal, aoRadius, vfxLifetime > 0f ? vfxLifetime : 2f);
+        }
+
+        /// <summary>
+        /// If the spawned VFX has PixPlays BaseVfx, call Play(VfxData) with radius so LocationVfx (e.g. WindBlast) scales correctly.
+        /// </summary>
+        private static void TryPlayPixPlaysVfx(GameObject vfx, Vector3 position, Vector3 normal, float radius, float duration)
+        {
+            try
             {
-                Quaternion rotation = normal != Vector3.zero
-                    ? Quaternion.LookRotation(normal)
-                    : Quaternion.identity;
-                SpawnVFX(impactVFX, position, rotation);
+                Type baseVfxType = Type.GetType("PixPlays.ElementalVFX.BaseVfx, Assembly-CSharp");
+                Type vfxDataType = Type.GetType("PixPlays.ElementalVFX.VfxData, Assembly-CSharp");
+                if (baseVfxType == null || vfxDataType == null)
+                    return;
+
+                Component comp = vfx.GetComponent(baseVfxType);
+                if (comp == null)
+                    return;
+
+                duration = Mathf.Max(0.5f, duration);
+                ConstructorInfo ctor = vfxDataType.GetConstructor(new[] { typeof(Vector3), typeof(Vector3), typeof(float), typeof(float) });
+                if (ctor == null)
+                    return;
+
+                object vfxData = ctor.Invoke(new object[] { position, position + normal * 2f, duration, radius });
+                MethodInfo play = baseVfxType.GetMethod("Play", new[] { vfxDataType });
+                if (play != null)
+                {
+                    play.Invoke(comp, new[] { vfxData });
+                    // PixPlays LocationVfx scales its own child by radius; keep root at 1 to avoid double scale
+                    vfx.transform.localScale = Vector3.one;
+                }
+            }
+            catch
+            {
+                // PixPlays not present or different assembly; root scaling already applied
             }
         }
 
@@ -163,12 +213,15 @@ namespace Dwayne.Abilities
         /// <summary>
         /// Generic VFX spawner. Returns the spawned GameObject.
         /// </summary>
-        protected virtual GameObject SpawnVFX(GameObject vfxPrefab, Vector3 position, Quaternion rotation)
+        /// <param name="scale">Scale of the spawned VFX (1 = prefab default). Used for AOE impact VFX.</param>
+        protected virtual GameObject SpawnVFX(GameObject vfxPrefab, Vector3 position, Quaternion rotation, float scale = 1f)
         {
             if (vfxPrefab == null)
                 return null;
 
             GameObject vfx = Instantiate(vfxPrefab, position, rotation);
+            if (scale != 1f)
+                vfx.transform.localScale = Vector3.one * scale;
 
             if (vfxLifetime > 0f)
                 Destroy(vfx, vfxLifetime);

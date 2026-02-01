@@ -46,9 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.AirCombatAbility
   elementType: 0
   cooldownDuration: 1
-  spawnVFX: {fileID: 2590962639825161759, guid: 96f418c79df2d524a91d61710e86cc85, type: 3}
+  spawnVFX: {fileID: 3398366222349601506, guid: 3af328b9a7e29044bade7641dd722166, type: 3}
   projectileVFX: {fileID: 0}
-  impactVFX: {fileID: 0}
+  impactVFX: {fileID: 4060967071236614201, guid: 3d164b7d14e44244589693d586e6a368, type: 3}
   trailVFX: {fileID: 0}
   vfxLifetime: 2
   canModifySpeed: 0

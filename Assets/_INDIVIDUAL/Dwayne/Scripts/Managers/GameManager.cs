@@ -19,7 +19,9 @@ namespace Managers
         [Tooltip("Player prefab to spawn (optional - if not set, will use existing player in scene)")]
         public GameObject playerPrefab;
         [Tooltip("Location where player spawns/respawns")]
-        private Transform playerSpawnPoint;
+        public Transform playerSpawnPoint;
+        [Tooltip("Delay in seconds before respawning after death (0 = respawn immediately)")]
+        [SerializeField] private float respawnDelay = 2f;
         
         [Header("Enemy Spawning")]
         public GameObject[] enemyPrefabs;
@@ -114,13 +116,17 @@ namespace Managers
         {
             // Prevent duplicate initialization
             if (isInitializingScene) return;
-            playerSpawnPoint = PlayerSpawn.Instance.transform;
-            // Only spawn player if we're in a game scene
-            if (IsGameScene(sceneName))
+
+            // Menu scene: show cursor so player can click Play, Settings, etc.
+            if (!IsGameScene(sceneName))
             {
-                isInitializingScene = true;
-                StartCoroutine(InitializeGameScene());
+                UnlockCursor();
+                return;
             }
+
+            // Game scene: spawn player and lock cursor when ready
+            isInitializingScene = true;
+            StartCoroutine(InitializeGameScene());
         }
 
         /// <summary>
@@ -228,7 +234,8 @@ namespace Managers
             }
             else
             {
-                // We're in a menu scene, don't spawn player
+                // We're in a menu scene: show cursor for UI (Play, Settings, etc.)
+                UnlockCursor();
                 Debug.Log($"GameManager: In menu scene '{currentSceneName}', skipping player spawn.");
             }
         }
@@ -272,11 +279,29 @@ namespace Managers
             isInitializingScene = false;
         }
         
+        /// <summary>
+        /// Returns the spawn point to use: the one assigned in the Inspector, or the first PlayerSpawnPoint in the scene.
+        /// </summary>
+        private Transform GetEffectiveSpawnPoint()
+        {
+            if (playerSpawnPoint != null)
+                return playerSpawnPoint;
+
+            var spawnPoint = Object.FindFirstObjectByType<PlayerSpawnPoint>();
+            if (spawnPoint != null)
+            {
+                Debug.Log($"GameManager: Using PlayerSpawnPoint from scene '{spawnPoint.gameObject.name}' (assign in Inspector to override).");
+                return spawnPoint.transform;
+            }
+
+            return null;
+        }
+
         private void SpawnPlayer()
         {
-            // Determine spawn position
-            Vector3 spawnPosition = playerSpawnPoint != null ? playerSpawnPoint.position : Vector3.zero;
-            Quaternion spawnRotation = playerSpawnPoint != null ? playerSpawnPoint.rotation : Quaternion.identity;
+            Transform spawn = GetEffectiveSpawnPoint();
+            Vector3 spawnPosition = spawn != null ? spawn.position : Vector3.zero;
+            Quaternion spawnRotation = spawn != null ? spawn.rotation : Quaternion.identity;
 
             // Destroy existing player instance if we spawned it previously
             if (playerInstance != null)
@@ -299,9 +324,44 @@ namespace Managers
             playerInstance = Instantiate(playerPrefab, spawnPosition, spawnRotation);
             playerInstance.name = "Player"; // Clean up the name (remove "(Clone)")
 
+            // Snap to spawn point (Rigidbody/CharacterController can override transform on next tick)
+            SnapPlayerToSpawnPoint(playerInstance, spawnPosition, spawnRotation);
+
             EnsurePlayerMeshVisible(playerInstance);
 
             Debug.Log($"GameManager: Player spawned at {spawnPosition}");
+        }
+
+        /// <summary>
+        /// Forces the player to the spawn position/rotation and syncs physics so they stay there.
+        /// </summary>
+        private void SnapPlayerToSpawnPoint(GameObject player, Vector3 position, Quaternion rotation)
+        {
+            if (player == null) return;
+
+            Transform t = player.transform;
+            t.position = position;
+            t.rotation = rotation;
+
+            // Rigidbody: sync physics state and zero velocity so gravity/forces don't move them
+            var rb = player.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.position = position;
+                rb.rotation = rotation;
+            }
+
+            // CharacterController: disable before moving (some Unity versions ignore transform while enabled)
+            var cc = player.GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                cc.enabled = false;
+                t.position = position;
+                t.rotation = rotation;
+                cc.enabled = true;
+            }
         }
         
         /// <summary>
@@ -337,13 +397,31 @@ namespace Managers
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
+
+        /// <summary>
+        /// Show and unlock the cursor (for main menu and other UI scenes).
+        /// </summary>
+        private void UnlockCursor()
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        private bool IsInMenuScene()
+        {
+            string current = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            return !IsGameScene(current);
+        }
         
         private void OnApplicationFocus(bool hasFocus)
         {
-            // When window regains focus (e.g., after maximizing), lock cursor if game is not paused
+            // When window regains focus, restore cursor state for current scene
             if (hasFocus && Time.timeScale > 0f && !isPaused)
             {
-                StartCoroutine(LockCursorDelayed());
+                if (IsInMenuScene())
+                    UnlockCursor();
+                else
+                    StartCoroutine(LockCursorDelayed());
             }
         }
         
@@ -351,8 +429,13 @@ namespace Managers
         {
             HandleEnemySpawning();
             
-            // Ensure cursor stays locked during gameplay (handles cases where window is maximized or regains focus)
-            // Only lock if game is not paused and cursor should be locked
+            // In menu scenes: keep cursor visible and unlocked
+            if (IsInMenuScene())
+            {
+                UnlockCursor();
+                return;
+            }
+            // In game: ensure cursor stays locked during gameplay (handles window focus, etc.)
             if (Time.timeScale > 0f && Cursor.lockState != CursorLockMode.Locked && !isPaused)
             {
                 LockCursor();
@@ -387,6 +470,16 @@ namespace Managers
         public void OnPlayerDeath()
         {
             OnGameEnd?.Invoke();
+            if (respawnDelay > 0f)
+                StartCoroutine(RespawnAfterDelay());
+            else
+                RespawnPlayer();
+        }
+
+        private IEnumerator RespawnAfterDelay()
+        {
+            yield return new WaitForSeconds(respawnDelay);
+            RespawnPlayer();
         }
 
         public void RespawnPlayer()
@@ -408,6 +501,33 @@ namespace Managers
 
             // Lock cursor after respawn
             LockCursor();
+        }
+
+        /// <summary>
+        /// Load the first game level (e.g. Level1). Call this from the main menu Play button.
+        /// Uses Game Scene Names: index 1 is the first level when index 0 is MainMenu.
+        /// </summary>
+        public void StartFirstLevel()
+        {
+            if (gameSceneNames == null || gameSceneNames.Length == 0)
+            {
+                Debug.LogWarning("GameManager: No game scenes configured. Assign Game Scene Names in the Inspector.");
+                return;
+            }
+
+            // First level: use index 1 when index 0 is MainMenu, otherwise index 0
+            int firstLevelIndex = gameSceneNames.Length > 1 ? 1 : 0;
+            string firstLevelName = gameSceneNames[firstLevelIndex];
+            sceneIndex = firstLevelIndex;
+
+            if (sceneManager != null)
+            {
+                sceneManager.LoadScene(firstLevelName);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(firstLevelName);
+            }
         }
 
         public void RestartGame()

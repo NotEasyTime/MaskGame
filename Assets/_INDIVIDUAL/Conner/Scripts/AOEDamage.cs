@@ -17,9 +17,9 @@ public class AOEDamage : MonoBehaviour
             if (col.CompareTag("Player"))
             {
                 PlayerHealth playerHealth = col.GetComponent<PlayerHealth>();
-                if (playerHealth != null)
+                if (playerHealth != null && playerHealth.IsAlive)
                 {
-                    playerHealth.TakeDamage(damage);
+                    playerHealth.TakeDamage(damage, transform.position, Vector3.zero, null);
                 }
             }
         }

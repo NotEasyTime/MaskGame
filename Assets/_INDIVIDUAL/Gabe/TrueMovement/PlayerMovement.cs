@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Interfaces;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -29,10 +30,15 @@ public class PlayerMovement : MonoBehaviour
     private float coyoteCounter;
     private float jumpBufferCounter;
     private float landingDelay;
+    private bool isDead;
+    private IDamagable damagable;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        damagable = GetComponent<IDamagable>();
+        if (damagable != null)
+            damagable.OnDeath += OnPlayerDeath;
         rb.freezeRotation = true;
         rb.useGravity = false; 
         
@@ -46,9 +52,9 @@ public class PlayerMovement : MonoBehaviour
         GetComponent<Collider>().material = frictionless;
     }
     
-    public void OnMove(InputValue value) => moveInput = value.Get<Vector2>();
-    public void OnJump(InputValue value) { if (value.isPressed) jumpBufferCounter = jumpBufferTime; }
-    public void OnSprint(InputValue value) => isSprinting = value.isPressed;
+    public void OnMove(InputValue value) => moveInput = isDead ? Vector2.zero : value.Get<Vector2>();
+    public void OnJump(InputValue value) { if (!isDead && value.isPressed) jumpBufferCounter = jumpBufferTime; }
+    public void OnSprint(InputValue value) => isSprinting = !isDead && value.isPressed;
 
     private void OnCollisionStay(Collision collision)
     {
@@ -66,8 +72,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionExit(Collision collision) => isGrounded = false;
 
+    private void OnDestroy()
+    {
+        if (damagable != null)
+            damagable.OnDeath -= OnPlayerDeath;
+    }
+
+    private void OnPlayerDeath()
+    {
+        isDead = true;
+        moveInput = Vector2.zero;
+    }
+
     void Update()
     {
+        if (isDead) return;
         if (landingDelay > 0) landingDelay -= Time.deltaTime;
         
         // Update Coyote Time
@@ -85,6 +104,11 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isDead)
+        {
+            rb.linearVelocity = Vector3.zero;
+            return;
+        }
         ApplyDrag();
         MovePlayer();
         ApplyCustomGravity();

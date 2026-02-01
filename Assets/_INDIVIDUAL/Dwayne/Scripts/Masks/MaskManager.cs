@@ -2,6 +2,7 @@ using UnityEngine;
 using Dwayne.Abilities;
 using Dwayne.Weapons;
 using Element;
+using Interfaces;
 
 namespace Dwayne.Masks
 {
@@ -33,6 +34,9 @@ namespace Dwayne.Masks
         [SerializeField] private Transform movementAbilitySpawnPoint;
 
         [Header("Targeting")]
+        [Tooltip("Camera used for aim raycast. If unset, uses Camera.main (ensure your look-around camera is tagged MainCamera).")]
+        [SerializeField] private Camera targetingCamera;
+
         [Tooltip("Use screen center (crosshair) for aiming instead of mouse position")]
         [SerializeField] private bool useCrosshairAiming = true;
 
@@ -57,10 +61,12 @@ namespace Dwayne.Masks
 
         // Cached references
         private Camera mainCamera;
+        private IDamagable playerDamagable;
 
         void Start()
         {
-            mainCamera = Camera.main;
+            mainCamera = targetingCamera != null ? targetingCamera : Camera.main;
+            playerDamagable = GetComponent<IDamagable>();
 
             // Set spawn points to self if not assigned
             if (weaponSpawnPoint == null)
@@ -310,6 +316,8 @@ namespace Dwayne.Masks
         {
             if (weaponComponent == null)
                 return false;
+            if (playerDamagable != null && !playerDamagable.IsAlive)
+                return false;
 
             Vector3 origin = weaponSpawnPoint.position;
             Vector3 direction = GetTargetDirection();
@@ -335,6 +343,8 @@ namespace Dwayne.Masks
                     Debug.LogWarning("MaskManager: Cannot use combat ability - no weapon equipped!");
                 return false;
             }
+            if (playerDamagable != null && !playerDamagable.IsAlive)
+                return false;
 
             if (weaponComponent.FireAbility == null)
             {
@@ -363,6 +373,8 @@ namespace Dwayne.Masks
         public bool UseAltCombatAbility()
         {
             if (weaponComponent == null)
+                return false;
+            if (playerDamagable != null && !playerDamagable.IsAlive)
                 return false;
 
             Vector3 targetPosition = GetTargetPosition();
@@ -457,6 +469,9 @@ namespace Dwayne.Masks
         /// </summary>
         private Vector3 GetTargetPosition()
         {
+            if (mainCamera == null)
+                mainCamera = targetingCamera != null ? targetingCamera : Camera.main;
+
             if (mainCamera != null)
             {
                 Ray ray;
@@ -554,10 +569,11 @@ namespace Dwayne.Masks
             if (!Application.isPlaying || !showDebugLogs)
                 return;
 
-            // Draw targeting line
+            // Draw targeting line (weapon aim: spawn point → crosshair target)
             Gizmos.color = Color.yellow;
             Vector3 targetPos = GetTargetPosition();
-            Gizmos.DrawLine(transform.position, targetPos);
+            Vector3 lineStart = weaponSpawnPoint != null ? weaponSpawnPoint.position : transform.position;
+            Gizmos.DrawLine(lineStart, targetPos);
             Gizmos.DrawWireSphere(targetPos, 0.5f);
 
             // Draw weapon spawn point

@@ -49,7 +49,7 @@ MonoBehaviour:
   spawnVFX: {fileID: 0}
   projectileVFX: {fileID: 0}
   impactVFX: {fileID: 0}
-  trailVFX: {fileID: 0}
+  trailVFX: {fileID: 7000000000000000001, guid: b8e3c2d1f4a5678901234567890bcdef, type: 3}
   vfxLifetime: 2
   canModifySpeed: 0
   speedMultiplier: 0.5

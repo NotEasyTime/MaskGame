@@ -1,41 +1,55 @@
+using System;
 using UnityEngine;
+using Interfaces;
 
-public class PlayerHealth : MonoBehaviour
+public class PlayerHealth : MonoBehaviour, IDamagable
 {
     [Header("Health")]
-    [SerializeField] private int maxHealth = 100;
-    [SerializeField] private int currentHealth;
+    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private float currentHealth;
+
+    // IDamagable
+    public float CurrentHealth => currentHealth;
+    public float MaxHealth => maxHealth;
+    public bool IsAlive => currentHealth > 0f;
+
+    public event Action<float, Vector3, object> OnDamaged;
+    public event Action OnDeath;
 
     private void Awake()
     {
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(int damage)
+    public float TakeDamage(float amount, Vector3 hitPoint, Vector3 hitDirection, object source = null)
     {
-        currentHealth -= damage;
-        Debug.Log("Player took " + damage + " damage. Current health: " + currentHealth);
+        if (!IsAlive || amount <= 0f)
+            return 0f;
 
-        if (currentHealth <= 0)
+        float actualDamage = Mathf.Min(amount, currentHealth);
+        currentHealth -= actualDamage;
+
+        Debug.Log($"Player took {actualDamage} damage. Current health: {currentHealth}");
+
+        OnDamaged?.Invoke(actualDamage, hitPoint, source);
+
+        if (currentHealth <= 0f)
         {
             Die();
         }
+
+        return actualDamage;
     }
 
     private void Die()
     {
         Debug.Log("Player died!");
-        // Add death logic here I am not worrying about it now.
-        //Destroy(gameObject);
+        OnDeath?.Invoke();
+
+        if (Managers.GameManager.Instance != null)
+            Managers.GameManager.Instance.OnPlayerDeath();
     }
 
-    public int GetCurrentHealth()
-    {
-        return currentHealth;
-    }
-
-    public int GetMaxHealth()
-    {
-        return maxHealth;
-    }
+    public int GetCurrentHealth() => (int)currentHealth;
+    public int GetMaxHealth() => (int)maxHealth;
 }
