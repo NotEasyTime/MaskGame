@@ -48,7 +48,7 @@ MonoBehaviour:
   magazineSize: 30
   refillCooldown: 1.5
   damage: 10
-  range: 100
+  range: 500
   pelletsPerShot: 2
   spreadAngle: 15
   useCharging: 0
@@ -58,4 +58,10 @@ MonoBehaviour:
   fireAbility: {fileID: 5777128151034143781, guid: 09670b3119f82364481320992d57d20b, type: 3}
   altFireAbility: {fileID: 1149501829899056174, guid: 858988d9cbabfed44b4b0f9a1579af26, type: 3}
   owner: {fileID: 0}
-  useChargeDamage: 0
+  fallbackFireMode: 0
+  fallbackHitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  fallbackProjectilePrefab: {fileID: 0}
+  fallbackProjectileSpeed: 20
+  fallbackPoolName: 

@@ -15,9 +15,15 @@ namespace Dwayne.VFX
         [SerializeField] Color colorMin = new Color(0.6f, 0.85f, 1f, 0.9f);
         [SerializeField] Color colorMax = new Color(0.9f, 1f, 1f, 0.5f);
 
+        [SerializeField] Material particleMaterial; // Optional: assign in Inspector; otherwise we create from URP shader.
+
         void Start()
         {
             var ps = gameObject.AddComponent<ParticleSystem>();
+
+            // Stop before changing duration/main — Unity disallows setting duration while playing
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
             var main = ps.main;
             main.duration = 0.01f;
             main.loop = false;
@@ -43,8 +49,7 @@ namespace Dwayne.VFX
             if (renderer != null)
             {
                 renderer.renderMode = ParticleSystemRenderMode.Billboard;
-                // Use default particle material if available (Built-in or URP)
-                var mat = GetDefaultParticleMaterial();
+                var mat = particleMaterial != null ? particleMaterial : GetDefaultParticleMaterial();
                 if (mat != null) renderer.material = mat;
             }
 
@@ -52,10 +57,9 @@ namespace Dwayne.VFX
             Destroy(gameObject, duration);
         }
 
+        /// <summary>Creates a URP-compatible particle material (Default-Particle.mat is legacy and not in URP).</summary>
         static Material GetDefaultParticleMaterial()
         {
-            var mat = Resources.GetBuiltinResource<Material>("Default-Particle.mat");
-            if (mat != null) return mat;
             var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
                 ?? Shader.Find("Particles/Standard Unlit")
                 ?? Shader.Find("Particles/Unlit");

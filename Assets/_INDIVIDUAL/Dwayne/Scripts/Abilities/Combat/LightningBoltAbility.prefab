@@ -51,6 +51,10 @@ MonoBehaviour:
   impactVFX: {fileID: 0}
   trailVFX: {fileID: 0}
   vfxLifetime: 2
+  impactVFXScaleFactor: 0.5
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  completionSound: {fileID: 0}
   canModifySpeed: 0
   speedMultiplier: 0.5
   speedDuration: 2
@@ -67,12 +71,13 @@ MonoBehaviour:
   selfDotDuration: 2
   projectilePrefab: {fileID: 799513695467068968, guid: 607589205af01454fbcc6c272b55cb0a, type: 3}
   poolName: 
-  projectileSpeed: 20
-  projectileDamage: 10
+  projectileSpeed: 100
+  projectileDamage: 20
   chargeTime: 1.5
   autoReleaseAtFullCharge: 1
-  partialRelease: 0
+  partialRelease: 1
   minChargeToFire: 1
   fullChargeDamageMultiplier: 2
   fullChargeSpeedMultiplier: 1.5
+  spawnHeightAboveTarget: 20
   showDebugTrace: 1

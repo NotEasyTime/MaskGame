@@ -39,6 +39,14 @@ namespace Dwayne.Abilities
             // Spawn VFX at user when firing
             SpawnVFXAtUser(user);
 
+            // Projectile VFX at origin for hit-scan visual (no physical projectile)
+            if (projectileVFX != null)
+            {
+                GameObject vfx = SpawnVFX(projectileVFX, origin, Quaternion.LookRotation(direction));
+                if (vfx != null)
+                    Destroy(vfx, 0.2f);
+            }
+
             // Single focused raycast
             if (Physics.Raycast(origin, direction, out RaycastHit hit, range, hitMask))
             {
@@ -48,6 +56,14 @@ namespace Dwayne.Abilities
 
                 // Spawn impact VFX on hit
                 SpawnImpactVFX(hit.point, hit.normal);
+
+                // Projectile VFX at hit point for hit-scan visual (beam reached)
+                if (projectileVFX != null)
+                {
+                    GameObject hitVfx = SpawnVFX(projectileVFX, hit.point, Quaternion.LookRotation(hit.normal));
+                    if (hitVfx != null)
+                        Destroy(hitVfx, 0.15f);
+                }
 
                 // Spawn beam visual effect
                 if (beamVFX != null)

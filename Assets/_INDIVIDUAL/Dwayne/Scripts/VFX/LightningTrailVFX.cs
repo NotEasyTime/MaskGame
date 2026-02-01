@@ -22,6 +22,8 @@ namespace Dwayne.VFX
         [SerializeField] float jitterSpeed = 25f;
         [SerializeField] Color colorStart = new Color(0.7f, 0.9f, 1f, 0.95f);
         [SerializeField] Color colorEnd = new Color(0.4f, 0.7f, 1f, 0.2f);
+        [Tooltip("Optional: assign in Inspector; otherwise we create from URP shader.")]
+        [SerializeField] Material lineMaterial;
 
         struct TrailPoint
         {
@@ -42,7 +44,8 @@ namespace Dwayne.VFX
             _line.endWidth = boltWidth * 0.3f;
             _line.startColor = colorStart;
             _line.endColor = colorEnd;
-            _line.material = GetLightningMaterial();
+            var mat = lineMaterial != null ? lineMaterial : GetLightningMaterial();
+            if (mat != null) _line.material = mat;
             _line.numCapVertices = 2;
             _line.numCornerVertices = 2;
             _seed = Random.Range(0f, 1000f);
@@ -102,10 +105,9 @@ namespace Dwayne.VFX
             _line.SetPositions(bolt.ToArray());
         }
 
+        /// <summary>Creates a URP-compatible material (Default-Particle.mat is legacy and not in URP).</summary>
         static Material GetLightningMaterial()
         {
-            var mat = Resources.GetBuiltinResource<Material>("Default-Particle.mat");
-            if (mat != null) return new Material(mat);
             var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
                 ?? Shader.Find("Particles/Standard Unlit")
                 ?? Shader.Find("Particles/Unlit")

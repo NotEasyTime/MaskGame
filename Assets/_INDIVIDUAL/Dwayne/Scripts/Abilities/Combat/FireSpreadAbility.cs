@@ -40,6 +40,14 @@ namespace Dwayne.Abilities
             // Spawn VFX at user when firing
             SpawnVFXAtUser(user);
 
+            // Projectile VFX at origin for hit-scan visual (no physical projectile)
+            if (projectileVFX != null)
+            {
+                GameObject vfx = SpawnVFX(projectileVFX, origin, Quaternion.LookRotation(baseDirection));
+                if (vfx != null)
+                    Destroy(vfx, 0.2f);
+            }
+
             float halfAngleRad = spreadAngleDeg * 0.5f * Mathf.Deg2Rad;
             int hitCount = 0;
 

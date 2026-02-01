@@ -50,8 +50,8 @@ MonoBehaviour:
   projectileVFX: {fileID: 1144309072755386233, guid: 37f3b2c1f111a214e8e10740b19c997f, type: 3}
   impactVFX: {fileID: 6426699771996326788, guid: e9e2c43baa7907e4cabcde0e77e62fa2, type: 3}
   trailVFX: {fileID: 0}
-  vfxLifetime: 2
-  impactVFXScaleFactor: 0.5
+  vfxLifetime: 4
+  impactVFXScaleFactor: 1
   castSound: {fileID: 0}
   impactSound: {fileID: 0}
   completionSound: {fileID: 0}
@@ -69,13 +69,13 @@ MonoBehaviour:
   selfDotDamagePerTick: 2
   selfDotTickInterval: 0.5
   selfDotDuration: 2
-  range: 8
-  coneAngle: 45
-  damagePerSecond: 20
+  range: 12
+  coneAngle: 35
+  damagePerSecond: 12
   tickRate: 0.1
   hitMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 128
   maxResource: 100
   drainPerSecond: 25
   regenPerSecond: 15

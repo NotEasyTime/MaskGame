@@ -61,7 +61,7 @@ MonoBehaviour:
   applySpeedToSelf: 0
   selfSpeedMultiplier: 1.5
   selfSpeedDuration: 2
-  canDoT: 0
+  canDoT: 1
   dotDamagePerTick: 5
   dotTickInterval: 0.5
   dotDuration: 4
@@ -69,10 +69,10 @@ MonoBehaviour:
   selfDotDamagePerTick: 2
   selfDotTickInterval: 0.5
   selfDotDuration: 2
-  range: 20
+  range: 50
   damage: 8
-  pelletsPerShot: 6
-  spreadAngleDeg: 12
+  pelletsPerShot: 20
+  spreadAngleDeg: 15
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295

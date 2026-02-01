@@ -55,10 +55,10 @@ MonoBehaviour:
   castSound: {fileID: 0}
   impactSound: {fileID: 0}
   completionSound: {fileID: 0}
-  canModifySpeed: 0
+  canModifySpeed: 1
   speedMultiplier: 0.5
   speedDuration: 2
-  applySpeedToSelf: 0
+  applySpeedToSelf: 1
   selfSpeedMultiplier: 1.5
   selfSpeedDuration: 2
   canDoT: 0

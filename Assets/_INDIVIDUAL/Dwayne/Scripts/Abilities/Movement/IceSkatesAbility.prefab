@@ -45,19 +45,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.IceSkatesAbility
   elementType: 1
-  cooldownDuration: 1
+  cooldownDuration: 8
   spawnVFX: {fileID: 0}
   projectileVFX: {fileID: 0}
   impactVFX: {fileID: 0}
   trailVFX: {fileID: 0}
   vfxLifetime: 2
-  canSlow: 0
-  slowMultiplier: 0.5
-  slowDuration: 2
-  pathDuration: 4
-  movementSpeedMultiplier: 1.5
-  slowResistance: 0.6
-  pathWidth: 2
-  pathSegmentLength: 2
-  verticalLookScale: 1
-  verticalInputAction: {fileID: 0}
+  impactVFXScaleFactor: 0.5
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  completionSound: {fileID: 0}
+  canModifySpeed: 0
+  speedMultiplier: 0.5
+  speedDuration: 2
+  applySpeedToSelf: 0
+  selfSpeedMultiplier: 1.5
+  selfSpeedDuration: 2
+  canDoT: 0
+  dotDamagePerTick: 5
+  dotTickInterval: 0.5
+  dotDuration: 4
+  applyDoTToSelf: 0
+  selfDotDamagePerTick: 2
+  selfDotTickInterval: 0.5
+  selfDotDuration: 2
+  flyDuration: 5
+  flySpeed: 45
+  upwardBias: 0.1

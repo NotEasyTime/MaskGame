@@ -81,7 +81,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   gravity: 0
-  trailVFXPrefab: {fileID: 2763475566794699734, guid: 5c2ffe94b2dbd7f4abf65525736f9f1b, type: 3}
+  trailVFXPrefab: {fileID: 0}
   trailSpawnInterval: 0.05
   trailVFXLifetime: 0.5
   impactVFXPrefab: {fileID: 0}
