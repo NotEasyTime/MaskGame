@@ -156,10 +156,10 @@ namespace Dwayne.Masks
         {
             if (targetImage == null) return;
             float healthPercent = Mathf.Clamp(currentHP / 3f, 0.2f, 1f);
-            UpdateCrackOverlays(currentHP, targetImage == ability);
+            UpdateCrackOverlays();
         }
         
-        private void UpdateCrackOverlays(int hp, bool isAbility)
+        private void UpdateCrackOverlays()
         {
             if (maskHealth[weaponMaskIndex] > 21) ability.sprite = ability_sprites[0];
             if (maskHealth[weaponMaskIndex] < 21) ability.sprite = ability_sprites[1];
@@ -167,7 +167,8 @@ namespace Dwayne.Masks
             if (maskHealth[movementMaskIndex + 4] > 21) movement.sprite = movement_sprites[0];
             if (maskHealth[movementMaskIndex + 4] < 21) movement.sprite = movement_sprites[1];
             if (maskHealth[movementMaskIndex + 4] < 11) movement.sprite = movement_sprites[2];
-            
+                     
+
         }
 
         /// <summary>
@@ -264,6 +265,7 @@ namespace Dwayne.Masks
         public void NextMask()
         {
             NextWeaponMask();
+            UpdateCrackOverlays();
         }
 
         /// <summary>
@@ -272,6 +274,7 @@ namespace Dwayne.Masks
         public void PreviousMask()
         {
             PreviousMovementMask();
+            UpdateCrackOverlays();
         }
 
         /// <summary>
