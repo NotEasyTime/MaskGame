@@ -273,7 +273,12 @@ public class EnemySphere : MonoBehaviour, IDamagable
         if (other.CompareTag("Player"))
         {
             PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-            if (playerHealth != null) playerHealth.TakeDamage(contactDamage);
+            if (playerHealth != null && playerHealth.IsAlive)
+            {
+                Vector3 hitPoint = other.ClosestPoint(transform.position);
+                Vector3 hitDir = (transform.position - other.transform.position).normalized;
+                playerHealth.TakeDamage(contactDamage, hitPoint, hitDir, gameObject);
+            }
 
             // Self-knockback when hitting player
             Vector3 pushDir = (transform.position - other.transform.position).normalized;

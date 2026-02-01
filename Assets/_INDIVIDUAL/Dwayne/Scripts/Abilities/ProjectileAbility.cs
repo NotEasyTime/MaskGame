@@ -89,6 +89,10 @@ namespace Dwayne.Abilities
             // Launch the projectile
             projectile.Launch(origin, direction, projectileSpeed, projectileDamage, user);
 
+            // Optional trail VFX along path (from BaseAbility.trailVFX)
+            if (trailVFX != null)
+                projectile.SetTrailVFX(trailVFX, 0.05f, vfxLifetime > 0 ? vfxLifetime : 0.5f);
+
             return projectile;
         }
 

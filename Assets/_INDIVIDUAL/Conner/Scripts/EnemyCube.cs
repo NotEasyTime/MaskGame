@@ -4,6 +4,7 @@ using System; // Required for Action
 using System.Collections;
 using Interfaces;
 using Dwayne.Effects;
+using Dwayne.Interfaces;
 
 public class EnemyCube : MonoBehaviour, IDamagable
 {
@@ -29,6 +30,7 @@ public class EnemyCube : MonoBehaviour, IDamagable
     [SerializeField] private Vector3 spawnOffset = new Vector3(0, 0.5f, 1f);
 
     [Header("Combat")]
+    [SerializeField] private float projectileDamage = 10f;
     [SerializeField] private float knockbackDistance = 2f;
     [SerializeField] private float knockbackDuration = 0.2f;
 
@@ -94,14 +96,20 @@ public class EnemyCube : MonoBehaviour, IDamagable
         if (fireCooldown <= 0f)
         {
             Vector3 spawnPos = transform.position + transform.TransformDirection(spawnOffset);
-            GameObject projectile = Instantiate(projectilePrefab, spawnPos, transform.rotation);
-            Rigidbody rb = projectile.GetComponent<Rigidbody>();
+            Vector3 targetCenter = player.position + Vector3.up;
+            Vector3 fireDirection = (targetCenter - spawnPos).normalized;
 
-            if (rb != null)
+            GameObject projectileObj = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(fireDirection));
+            var projectile = projectileObj.GetComponent<IProjectile>();
+            if (projectile != null)
             {
-                Vector3 targetCenter = player.position + Vector3.up; 
-                Vector3 fireDirection = (targetCenter - spawnPos).normalized;
-                rb.linearVelocity = fireDirection * projectileSpeed;
+                projectile.Launch(spawnPos, fireDirection, projectileSpeed, projectileDamage, gameObject);
+            }
+            else
+            {
+                Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
+                if (rb != null)
+                    rb.linearVelocity = fireDirection * projectileSpeed;
             }
 
             fireCooldown = 1f / fireRate;

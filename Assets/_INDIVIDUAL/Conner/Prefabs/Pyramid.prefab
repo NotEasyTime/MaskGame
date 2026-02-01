@@ -127,11 +127,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeb460ee6aa11423da6faec144563f61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPyramid
-  maxHealth: 10
+  maxHealth: 50
+  currentHealth: 50
   player: {fileID: 0}
   stopDistance: 20
   spawnPrefab: {fileID: 4699681724792139586, guid: 1792c36aa3046490fb13c5aafa7ada2d, type: 3}
   countdownTime: 3
+  knockbackDistance: 2
+  knockbackDuration: 0.2
 --- !u!64 &4352311517384326261
 MeshCollider:
   m_ObjectHideFlags: 0

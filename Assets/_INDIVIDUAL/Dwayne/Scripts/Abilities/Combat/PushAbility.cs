@@ -56,8 +56,8 @@ namespace Dwayne.Abilities
                 Debug.DrawLine(origin, hit.point, debugTraceColor, debugTraceDuration);
             }
 
-            // Spawn impact VFX at hit point
-            SpawnImpactVFX(hit.point, hit.normal);
+            // Spawn impact VFX at hit point (scale by explosion AOE radius)
+            SpawnImpactVFX(hit.point, hit.normal, explosionRadius);
 
             // Explode at hit point
             Explode(hit.point, user);
