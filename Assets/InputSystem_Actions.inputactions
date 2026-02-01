@@ -64,7 +64,7 @@
                     "name": "Previous",
                     "type": "Button",
                     "id": "2776c80d-3c14-4091-8c56-d04ced07a2b0",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -73,7 +73,7 @@
                     "name": "Next",
                     "type": "Button",
                     "id": "b7230bb6-fc9b-4f52-8b25-f5e19cb2c2ba",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -91,6 +91,15 @@
                     "name": "CombatAbility",
                     "type": "Button",
                     "id": "7b246e75-90c1-41a0-a85c-70c201be678e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "AltCombatAbility",
+                    "type": "Button",
+                    "id": "9e60bfe4-9dd3-489d-a525-578fabb5e0b5",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -494,8 +503,8 @@
                 },
                 {
                     "name": "",
-                    "id": "ce0a91b3-8028-49f7-8122-c62362781b43",
-                    "path": "",
+                    "id": "b711c2e1-be57-400e-864b-3d26501f307e",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -506,11 +515,22 @@
                 {
                     "name": "",
                     "id": "98a7f56a-5f4c-4631-84d9-1f7e03c0257c",
-                    "path": "",
+                    "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "MovementAbility",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "71f8204b-08ce-47ea-9bd3-695cf99d30dc",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AltCombatAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

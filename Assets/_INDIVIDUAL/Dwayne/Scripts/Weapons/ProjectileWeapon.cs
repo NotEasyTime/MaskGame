@@ -1,17 +1,16 @@
 using UnityEngine;
-using Dwayne.Interfaces;
+using Dwayne.Abilities;
 
 namespace Dwayne.Weapons
 {
     /// <summary>
-    /// Weapon that spawns a projectile per shot. Use for rockets, grenades, arrows.
-    /// Assign a prefab with a component implementing IProjectile (e.g. SimpleProjectile).
+    /// Weapon that uses ProjectileAbility to spawn pooled projectiles.
+    /// The fireAbility should be a ProjectileAbility (assigned directly, not instantiated).
+    /// The ability handles spawning projectiles from the ObjectPoolManager.
     /// </summary>
     public class ProjectileWeapon : BaseWeapon
     {
-        [Header("Projectile")]
-        [SerializeField] protected GameObject projectilePrefab;
-        [SerializeField] protected float projectileSpeed = 50f;
+        [Header("Projectile Settings")]
         [SerializeField] protected bool useChargeDamage = true;
 
         protected override bool DoFire(Vector3 origin, Vector3 direction)
@@ -21,19 +20,34 @@ namespace Dwayne.Weapons
 
         protected override bool DoFire(Vector3 origin, Vector3 direction, float charge)
         {
-            if (projectilePrefab == null)
+            // Use the fireAbility (should be a ProjectileAbility)
+            if (fireAbility == null)
+            {
+                Debug.LogWarning($"ProjectileWeapon '{name}' has no fireAbility assigned! Please assign a ProjectileAbility.");
                 return false;
+            }
 
-            float damageAmount = damage;
-            if (useChargeDamage)
-                damageAmount *= Mathf.Lerp(1f, fullChargeDamageMultiplier, charge);
+            // Verify it's a ProjectileAbility
+            ProjectileAbility projectileAbility = fireAbility as ProjectileAbility;
+            if (projectileAbility == null)
+            {
+                Debug.LogError($"ProjectileWeapon '{name}' fireAbility '{fireAbility.name}' is not a ProjectileAbility!");
+                return false;
+            }
 
-            GameObject go = Instantiate(projectilePrefab, origin, Quaternion.LookRotation(direction));
-            var projectile = go.GetComponent<IProjectile>();
-            if (projectile != null)
-                projectile.Launch(origin, direction, projectileSpeed, damageAmount, Owner);
+            // Check if ability can be used
+            if (!projectileAbility.CanUse)
+            {
+                return false;
+            }
 
-            return true;
+            // Calculate target position from origin and direction
+            Vector3 targetPosition = origin + direction * range;
+
+            // Use the ability - it will spawn the projectile from the pool
+            bool success = projectileAbility.Use(Owner, targetPosition);
+
+            return success;
         }
     }
 }

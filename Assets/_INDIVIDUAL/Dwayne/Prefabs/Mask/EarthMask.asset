@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 439d825982e74544ab6306e78c84097f, type: 3}
+  m_Name: EarthMask
+  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Masks.Mask
+  weaponPrefab: {fileID: 8948289500178815609, guid: db6463bedd4763746a779385edde67f2, type: 3}
+  movementAbilityPrefab: {fileID: 6223322381924712386, guid: e853caa2168e04a4a8b4bd39e16e0855, type: 3}
+  maskName: Earth
