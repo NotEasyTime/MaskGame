@@ -1929,9 +1929,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 630800096}
-        m_TargetAssemblyTypeName: Managers.GameManager, Assembly-CSharp
-        m_MethodName: StartFirstLevel
+      - m_Target: {fileID: 467427630}
+        m_TargetAssemblyTypeName: Managers.StartGameButton, Assembly-CSharp
+        m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
