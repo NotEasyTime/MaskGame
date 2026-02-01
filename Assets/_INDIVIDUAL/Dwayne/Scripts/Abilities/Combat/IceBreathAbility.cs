@@ -238,7 +238,7 @@ namespace Dwayne.Abilities
             channelTargetPosition = targetPosition;
             lastTickTime = Time.time;
 
-            // Spawn continuous VFX
+            // Spawn continuous VFX (activate and play so inactive/PixPlays prefabs show)
             if (spawnVFX != null)
             {
                 Vector3 origin = user.transform.position + Vector3.up * 1f;
@@ -246,6 +246,8 @@ namespace Dwayne.Abilities
                     ? (targetPosition - origin).normalized
                     : user.transform.forward;
                 activeVFX = Instantiate(spawnVFX, origin, Quaternion.LookRotation(direction));
+                activeVFX.SetActive(true);
+                TryPlayPixPlaysVfx(activeVFX, origin, direction, 1f, 999f);
             }
 
             if (showDebugTrace)

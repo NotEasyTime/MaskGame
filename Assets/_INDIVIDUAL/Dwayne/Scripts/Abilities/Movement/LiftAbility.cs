@@ -13,10 +13,10 @@ namespace Dwayne.Abilities
         public override Element.Element ElementType => Element.Element.Air;
 
         [Header("Lift")]
-        [Tooltip("Upward velocity applied every physics frame while lifting (holds you in the air).")]
-        [SerializeField] float upwardForce = 12f;
+        [Tooltip("Upward velocity applied every physics frame while lifting (holds you in the air). Should exceed gravity (e.g. 18+).")]
+        [SerializeField] float upwardForce = 18f;
         [Tooltip("How long the lift sustains (seconds).")]
-        [SerializeField] float duration = 0.5f;
+        [SerializeField] float duration = 0.6f;
         [SerializeField] float maxHeight = 10f;
 
         private Coroutine _liftRoutine;
@@ -42,9 +42,13 @@ namespace Dwayne.Abilities
         private IEnumerator LiftForDuration(GameObject user, Rigidbody rb, CharacterController cc, float force)
         {
             float elapsed = 0f;
+            bool wasUsingGravity = true;
 
             if (rb != null)
             {
+                wasUsingGravity = rb.useGravity;
+                rb.useGravity = false;
+
                 while (elapsed < duration && rb != null)
                 {
                     Vector3 vel = rb.linearVelocity;
@@ -53,6 +57,9 @@ namespace Dwayne.Abilities
                     elapsed += Time.fixedDeltaTime;
                     yield return new WaitForFixedUpdate();
                 }
+
+                if (rb != null)
+                    rb.useGravity = wasUsingGravity;
             }
             else if (cc != null)
             {

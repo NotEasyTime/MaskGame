@@ -69,8 +69,8 @@ MonoBehaviour:
   selfDotDamagePerTick: 2
   selfDotTickInterval: 0.5
   selfDotDuration: 2
-  maxDistance: 15
+  maxDistance: 60
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  groundOnly: 1
+  groundOnly: 0

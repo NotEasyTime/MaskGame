@@ -44,12 +44,22 @@ namespace Dwayne.Abilities
             if (cc != null)
                 destination += hit.normal * 0.1f;
 
-            user.transform.position = destination;
-
+            // Move the object that has Rigidbody/CC (player root), not necessarily user (e.g. MaskManager child)
             if (rb != null)
             {
+                rb.position = destination;
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
+            }
+            else if (cc != null)
+            {
+                cc.enabled = false;
+                cc.transform.position = destination;
+                cc.enabled = true;
+            }
+            else
+            {
+                user.transform.root.position = destination;
             }
 
             return true;

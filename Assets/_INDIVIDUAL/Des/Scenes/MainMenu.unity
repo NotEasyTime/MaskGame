@@ -2192,7 +2192,7 @@ MonoBehaviour:
   - MainMenu
   - PauseMenu
   pauseMenuSceneName: PauseMenu
-  pauseMenuPrefab: {fileID: 5641255298470664797, guid: 3036e2701955878488e9ba721c23f597, type: 3}
+  pauseMenuPrefab: {fileID: 0}
   isPaused: 0
   score: 0
 --- !u!4 &630800097

@@ -46,9 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.IceCombatAbility
   elementType: 0
   cooldownDuration: 1
-  spawnVFX: {fileID: 6426699771996326788, guid: e9e2c43baa7907e4cabcde0e77e62fa2, type: 3}
-  projectileVFX: {fileID: 0}
-  impactVFX: {fileID: 0}
+  spawnVFX: {fileID: 4837343242800250203, guid: 2586299b974564f428d47ccd3c198026, type: 3}
+  projectileVFX: {fileID: 1144309072755386233, guid: 37f3b2c1f111a214e8e10740b19c997f, type: 3}
+  impactVFX: {fileID: 6426699771996326788, guid: e9e2c43baa7907e4cabcde0e77e62fa2, type: 3}
   trailVFX: {fileID: 0}
   vfxLifetime: 2
   impactVFXScaleFactor: 0.5

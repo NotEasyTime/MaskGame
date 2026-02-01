@@ -45,7 +45,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.LiftAbility
   elementType: 0
-  cooldownDuration: 1
+  cooldownDuration: 4
+  spawnVFX: {fileID: 207745087118991948, guid: e656699b143494148a872961a9feb410, type: 3}
+  projectileVFX: {fileID: 0}
+  impactVFX: {fileID: 0}
+  trailVFX: {fileID: 0}
+  vfxLifetime: 2
+  impactVFXScaleFactor: 0.5
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  completionSound: {fileID: 0}
+  canModifySpeed: 0
+  speedMultiplier: 0.5
+  speedDuration: 2
+  applySpeedToSelf: 0
+  selfSpeedMultiplier: 1.5
+  selfSpeedDuration: 2
+  canDoT: 0
+  dotDamagePerTick: 5
+  dotTickInterval: 0.5
+  dotDuration: 4
+  applyDoTToSelf: 0
+  selfDotDamagePerTick: 2
+  selfDotTickInterval: 0.5
+  selfDotDuration: 2
   upwardForce: 15
-  duration: 0.5
+  duration: 2
   maxHeight: 10

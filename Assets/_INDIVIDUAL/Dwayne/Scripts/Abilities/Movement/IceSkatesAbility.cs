@@ -1,31 +1,27 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Dwayne.Interfaces;
 using Element;
 
 namespace Dwayne.Abilities
 {
     /// <summary>
-    /// Ice movement (Kelvin-style): create an ice path/trail the player glides on;
-    /// movement bonus and slow resistance while on the path; smooth 3DOF-style sliding.
-    /// Supports up/down input via look direction (pitch) and optional vertical input action.
+    /// Ice movement: launch into sustained flight for several seconds (ice skates = gliding through the air).
     /// </summary>
     public class IceSkatesAbility : BaseAbility
     {
         public override Element.Element ElementType => Element.Element.Ice;
 
-        [Header("Ice Path")]
-        [SerializeField] float pathDuration = 4f;
-        [SerializeField] float movementSpeedMultiplier = 1.5f;
-        [SerializeField] float slowResistance = 0.6f;
-        [SerializeField] float pathWidth = 2f;
-        [SerializeField] float pathSegmentLength = 2f;
+        [Header("Flight")]
+        [Tooltip("How long you stay flying (seconds).")]
+        [SerializeField] float flyDuration = 5f;
+        [Tooltip("Speed while flying.")]
+        [SerializeField] float flySpeed = 18f;
+        [Tooltip("Upward tilt of flight direction (0 = horizontal, 0.5 = 45° up, 1 = straight up).")]
+        [Range(0f, 1f)]
+        [SerializeField] float upwardBias = 0.35f;
 
-        [Header("Up / Down Input")]
-        [Tooltip("Look direction (pitch) adds vertical movement. Scale for up/down strength.")]
-        [SerializeField] float verticalLookScale = 1f;
-        [Tooltip("Optional: bind to an axis (e.g. right stick Y, or Jump/Crouch) for explicit up/down. -1 to 1.")]
-        [SerializeField] InputActionReference verticalInputAction;
+        private Coroutine _flyRoutine;
 
         protected override bool DoUse(GameObject user, Vector3 targetPosition)
         {
@@ -37,45 +33,57 @@ namespace Dwayne.Abilities
                 return false;
             }
 
-            Vector3 direction = targetPosition != Vector3.zero
-                ? (targetPosition - user.transform.position).normalized
-                : user.transform.forward;
+            if (_flyRoutine != null)
+                StopCoroutine(_flyRoutine);
 
-            float verticalInput = 0f;
-            if (verticalInputAction != null && verticalInputAction.action != null)
-            {
-                verticalInputAction.action.Enable();
-                string controlType = verticalInputAction.action.expectedControlType;
-                if (controlType == "Vector2")
-                    verticalInput = verticalInputAction.action.ReadValue<Vector2>().y;
-                else
-                    verticalInput = verticalInputAction.action.ReadValue<float>();
-            }
+            Transform mover = rb != null ? rb.transform : cc.transform;
+            Vector3 forward = targetPosition != Vector3.zero
+                ? (targetPosition - mover.position).normalized
+                : mover.forward;
+            forward.y = 0f;
+            if (forward.sqrMagnitude < 0.01f)
+                forward = mover.forward;
+            forward.Normalize();
+            Vector3 direction = (forward + Vector3.up * upwardBias).normalized;
 
-            if (verticalInput != 0f)
-                direction.y += verticalInput * verticalLookScale;
-            else
-                direction.y *= verticalLookScale;
+            _flyRoutine = StartCoroutine(FlyForDuration(user, rb, cc, direction));
+            return true;
+        }
 
-            if (direction.sqrMagnitude < 0.01f)
-                direction = user.transform.forward;
-            else
-                direction.Normalize();
-
-            float baseSpeed = movementSpeedMultiplier * 5f;
-            float pathBonus = (pathSegmentLength / Mathf.Max(0.01f, pathDuration)) * (1f + slowResistance) * pathWidth * 0.1f;
-            float speed = baseSpeed + pathBonus;
+        private IEnumerator FlyForDuration(GameObject user, Rigidbody rb, CharacterController cc, Vector3 direction)
+        {
+            float elapsed = 0f;
+            bool wasUsingGravity = true;
 
             if (rb != null)
             {
-                rb.linearVelocity = direction * speed;
-            }
-            else if (cc != null)
-            {
-                cc.Move(direction * speed * 0.15f);
+                wasUsingGravity = rb.useGravity;
+                rb.useGravity = false;
             }
 
-            return true;
+            while (elapsed < flyDuration && (rb != null || cc != null))
+            {
+                if (rb != null)
+                {
+                    rb.linearVelocity = direction * flySpeed;
+                    elapsed += Time.fixedDeltaTime;
+                    yield return new WaitForFixedUpdate();
+                }
+                else if (cc != null)
+                {
+                    cc.Move(direction * flySpeed * Time.deltaTime);
+                    elapsed += Time.deltaTime;
+                    yield return null;
+                }
+            }
+
+            if (rb != null)
+            {
+                rb.useGravity = wasUsingGravity;
+                rb.linearVelocity = Vector3.zero;
+            }
+
+            _flyRoutine = null;
         }
     }
 }
