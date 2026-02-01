@@ -227,6 +227,7 @@ GameObject:
   - component: {fileID: 6836428153677952952}
   - component: {fileID: 7826579883234544705}
   - component: {fileID: 8281934466416863126}
+  - component: {fileID: 6086630378616670005}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -336,9 +337,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8281934466416863126}
-        m_TargetAssemblyTypeName: ExitGame, Assembly-CSharp
-        m_MethodName: Quit
+      - m_Target: {fileID: 6086630378616670005}
+        m_TargetAssemblyTypeName: Managers.LoadMainMenuButton, Assembly-CSharp
+        m_MethodName: LoadMainMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -375,6 +376,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46ebffde5dcc05b4d90c803edd157fc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExitGame
+--- !u!114 &6086630378616670005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478779783850454402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65d5113f35f17394d9dc2156633832dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Managers.LoadMainMenuButton
+  showDebug: 0
 --- !u!1 &2413077888551306978
 GameObject:
   m_ObjectHideFlags: 0

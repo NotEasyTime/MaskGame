@@ -17,6 +17,7 @@ namespace Managers
         {
             if (showDebug)
                 Debug.Log("[LoadMainMenuButton] Load main menu pressed.");
+            Time.timeScale = 1f;
 
             GameManager gm = GameManager.Instance;
             if (gm == null)

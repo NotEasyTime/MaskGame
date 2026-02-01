@@ -112,7 +112,7 @@ namespace Managers
 
         public void PauseGame()
         {
-            if (isPaused) return;
+            if (isPaused) { ResumeGame(); return; }
             isPaused = true;
             Time.timeScale = 0f;
             UnlockCursor();
@@ -165,7 +165,10 @@ namespace Managers
             // Switch PlayerInput back to Player so gameplay input works again
             var playerInput = playerInstance != null ? playerInstance.GetComponentInChildren<PlayerInput>(true) : Object.FindFirstObjectByType<PlayerInput>();
             if (playerInput != null && !string.IsNullOrEmpty(_previousPlayerActionMapName))
-                playerInput.SwitchCurrentActionMap(_previousPlayerActionMapName);
+            {
+                StartCoroutine(SwitchBackNextFrame(playerInput));
+                Debug.Log("Calling PlayerInput Swap");
+            }
 
             if (pauseMenuInstance != null)
             {
@@ -182,6 +185,11 @@ namespace Managers
 
             LockCursor();
             OnGameResumed?.Invoke();
+        }
+        private IEnumerator SwitchBackNextFrame(PlayerInput playerInput)
+        {
+            yield return null;
+            playerInput.SwitchCurrentActionMap("Player");
         }
 
         /// <summary>
@@ -704,6 +712,7 @@ namespace Managers
                 sceneManager.LoadScene(sceneName);
             else
                 UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
+            Awake();
         }
 
         /// <summary>
