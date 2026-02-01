@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.EarthCombatAbility
   elementType: 0
-  cooldownDuration: 1
+  cooldownDuration: 0.5
   spawnVFX: {fileID: 7396603611830927542, guid: ee18951b5b5041140b52379b90dca376, type: 3}
   projectileVFX: {fileID: 4338604048821043398, guid: 3b31db33aca1f9b46b99168587271302, type: 3}
   impactVFX: {fileID: 7907260701345176331, guid: d901313d00610f14981ccc932d3d95f7, type: 3}
@@ -55,7 +55,7 @@ MonoBehaviour:
   castSound: {fileID: 0}
   impactSound: {fileID: 0}
   completionSound: {fileID: 0}
-  canModifySpeed: 0
+  canModifySpeed: 1
   speedMultiplier: 0.5
   speedDuration: 2
   applySpeedToSelf: 0
@@ -69,11 +69,11 @@ MonoBehaviour:
   selfDotDamagePerTick: 2
   selfDotTickInterval: 0.5
   selfDotDuration: 2
-  range: 12
+  range: 15
   radius: 3
-  damage: 20
+  damage: 5
   hitMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1152
   showDebugTrace: 1
   debugTraceDuration: 0.5

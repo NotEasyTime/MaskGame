@@ -48,7 +48,7 @@ MonoBehaviour:
   magazineSize: 30
   refillCooldown: 1.5
   damage: 10
-  range: 100
+  range: 500
   pelletsPerShot: 1
   spreadAngle: 0
   useCharging: 0

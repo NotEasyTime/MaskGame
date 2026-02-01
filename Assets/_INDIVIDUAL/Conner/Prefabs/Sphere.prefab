@@ -164,3 +164,5 @@ MonoBehaviour:
   teleportCheckHeight: 4
   teleportRadius: 1.5
   teleportCooldown: 1
+  attackSound: {fileID: 0}
+  hitReceivedSound: {fileID: 8300000, guid: 78133fa3ae5f3604faea2f60c17bdf80, type: 3}
