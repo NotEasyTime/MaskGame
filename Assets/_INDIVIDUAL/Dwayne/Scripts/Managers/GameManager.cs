@@ -56,7 +56,13 @@ namespace Managers
         public System.Action OnGameEnd;
         public System.Action OnGamePaused;
         public System.Action OnGameResumed;
-        
+
+        /// <summary>
+        /// True when we are in a game scene and InitializeGame() has run (player spawned, game started).
+        /// AI and other systems can check this before running (e.g. NavMesh agents wait until game is ready).
+        /// </summary>
+        public static bool IsGameReady { get; private set; }
+
         private int sceneIndex = 0;
         
         private void Awake()
@@ -120,6 +126,7 @@ namespace Managers
             // Menu scene: show cursor so player can click Play, Settings, etc.
             if (!IsGameScene(sceneName))
             {
+                IsGameReady = false;
                 UnlockCursor();
                 return;
             }
@@ -143,9 +150,10 @@ namespace Managers
         }
 
         /// <summary>
-        /// Check if the current scene is a game scene (not a menu scene)
+        /// Check if the given scene is a game scene (not a menu scene).
+        /// Used by ObjectPoolManager and others to defer work until a game scene loads.
         /// </summary>
-        private bool IsGameScene(string sceneName)
+        public bool IsGameScene(string sceneName)
         {
             // Check if it's a menu scene first
             foreach (string menuScene in menuSceneNames)
@@ -234,6 +242,7 @@ namespace Managers
             }
             else
             {
+                IsGameReady = false;
                 // We're in a menu scene: show cursor for UI (Play, Settings, etc.)
                 UnlockCursor();
                 Debug.Log($"GameManager: In menu scene '{currentSceneName}', skipping player spawn.");
@@ -447,7 +456,8 @@ namespace Managers
             score = 0;
             killCount = 0;
             currentEnemyCount = 0;
-            
+            IsGameReady = true;
+
             OnKillCountChanged?.Invoke(killCount);
             OnGameStart?.Invoke();
 

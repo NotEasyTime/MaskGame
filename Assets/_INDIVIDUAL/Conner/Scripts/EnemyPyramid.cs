@@ -4,6 +4,7 @@ using System.Collections;
 using System; // Required for Action
 using Interfaces;
 using Dwayne.Effects;
+using Managers;
 
 public class EnemyPyramid : MonoBehaviour, IDamagable
 {
@@ -69,6 +70,8 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
 
     private void Update()
     {
+        if (GameManager.Instance == null || !GameManager.IsGameReady)
+            return;
         // Stop logic if dead or missing player
         if (!IsAlive || player == null || agent == null || !agent.isOnNavMesh) return;
 

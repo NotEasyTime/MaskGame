@@ -70,10 +70,7 @@ namespace Pool
             }
 
             if (maxSize > 0 && preloadCount > maxSize)
-            {
-                errorMessage = $"Preload count ({preloadCount}) exceeds max size ({maxSize})";
-                return false;
-            }
+                preloadCount = maxSize;
 
             errorMessage = "";
             return true;

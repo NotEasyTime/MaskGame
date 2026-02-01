@@ -4821,10 +4821,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3ebf75ba2fe85c4a9da78bf59e5c0fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Pool.ObjectPoolManager
-  poolConfigs: []
+  poolConfigs:
+  - prefab: {fileID: 8948289500178815609, guid: 8800656e15d98614bbb3cdd8bcbcb1e1, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8948289500178815609, guid: db6463bedd4763746a779385edde67f2, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8948289500178815609, guid: 02e0bd259da0b0046bb4db1bd04f7769, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8948289500178815609, guid: c511d57e8e96b3840b892dfcafe8c6ff, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 6153752351596253516, guid: 37814adf098199941854cdcc23bc6325, type: 3}
+    poolName: Projectile
+    preloadCount: 100
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 6198441749571743864, guid: ef741a6d417d94140bfbe7f5b315273a, type: 3}
+    poolName: 
+    preloadCount: 100
+    maxSize: 100
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
+    poolName: 
+    preloadCount: 10
+    maxSize: 100
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
+    poolName: 
+    preloadCount: 50
+    maxSize: 100
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
+    poolName: 
+    preloadCount: 10
+    maxSize: 50
+    allowExpansion: 1
+    container: {fileID: 0}
   poolsContainer: {fileID: 0}
   showDebugInfo: 1
-  logPoolOperations: 0
+  logPoolOperations: 1
 --- !u!4 &1719559686
 Transform:
   m_ObjectHideFlags: 0

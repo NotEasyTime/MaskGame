@@ -5,6 +5,7 @@ using System.Collections;
 using Interfaces;
 using Dwayne.Effects;
 using Dwayne.Interfaces;
+using Managers;
 
 public class EnemyCube : MonoBehaviour, IDamagable
 {
@@ -60,6 +61,9 @@ public class EnemyCube : MonoBehaviour, IDamagable
 
     private void Update()
     {
+        // Wait until game is ready (player spawned, game scene initialized)
+        if (GameManager.Instance == null || !GameManager.IsGameReady)
+            return;
         // Don't process logic if dead or missing components
         if (!IsAlive || player == null || agent == null || !agent.isOnNavMesh)
             return;

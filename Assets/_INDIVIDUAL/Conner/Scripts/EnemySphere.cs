@@ -4,6 +4,7 @@ using System.Collections;
 using System;
 using Interfaces;
 using Dwayne.Effects;
+using Managers;
 
 public class EnemySphere : MonoBehaviour, IDamagable
 {
@@ -80,6 +81,8 @@ public class EnemySphere : MonoBehaviour, IDamagable
 
     private void Update()
     {
+        if (GameManager.Instance == null || !GameManager.IsGameReady)
+            return;
         if (agent == null || !agent.isOnNavMesh || player == null)
             return;
 
