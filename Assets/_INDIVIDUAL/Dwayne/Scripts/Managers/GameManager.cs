@@ -116,16 +116,19 @@ namespace Managers
             isPaused = true;
             Time.timeScale = 0f;
             UnlockCursor();
-
-            // Switch PlayerInput to UI so clicks go to pause menu buttons, not to Player actions
+            
             var playerInput = playerInstance != null ? playerInstance.GetComponentInChildren<PlayerInput>(true) : Object.FindFirstObjectByType<PlayerInput>();
             if (playerInput != null)
             {
+                // Store the current map name so ResumeGame() knows what to go back to
                 if (playerInput.currentActionMap != null)
                     _previousPlayerActionMapName = playerInput.currentActionMap.name;
+            
+                // Switch to UI map so the player doesn't "shoot" or "move" while paused
                 if (playerInput.actions.FindActionMap("UI") != null)
                     playerInput.SwitchCurrentActionMap("UI");
             }
+            
 
             // Clean up any existing pause menu first (prevents duplicates)
             if (pauseMenuInstance != null)
