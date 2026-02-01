@@ -18,11 +18,11 @@ namespace Dwayne.Abilities
 
         protected override bool DoUse(GameObject user, Vector3 targetPosition)
         {
-            Rigidbody rb = user.GetComponent<Rigidbody>();
-            CharacterController cc = user.GetComponent<CharacterController>();
+            Rigidbody rb = user.GetComponentInParent<Rigidbody>();
+            CharacterController cc = user.GetComponentInParent<CharacterController>();
             if (rb == null && cc == null)
             {
-                Debug.LogWarning("TeleportAbility: user has no Rigidbody or CharacterController.");
+                Debug.LogWarning("TeleportAbility: user (and root) has no Rigidbody or CharacterController.");
                 return false;
             }
 

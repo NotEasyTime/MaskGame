@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &9924580
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9924582}
+  - component: {fileID: 9924581}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &9924581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9924580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f5047eb2fe08db45aa27280898df0f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Managers.SoundManager
+  masterVolume: 1
+  maxConcurrentSFX: 8
+  dontDestroyOnLoad: 1
+  persistVolume: 1
+--- !u!4 &9924582
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9924580}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 68.37664, y: 33.21909, z: -38.23186}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &30534817
 GameObject:
   m_ObjectHideFlags: 0
@@ -2124,12 +2172,17 @@ MonoBehaviour:
   playerPrefab: {fileID: 1382737036237916155, guid: 9580e5bd7c6bb401d93bbb6cd2d2b5bf, type: 3}
   playerSpawnPoint: {fileID: 0}
   respawnDelay: 2
-  enemyPrefabs: []
+  enemyPrefabs:
+  - {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
+  - {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
+  - {fileID: 6198441749571743864, guid: ef741a6d417d94140bfbe7f5b315273a, type: 3}
   enemySpawnPoints: []
   enemySpawnRate: 5
   maxEnemies: 100
   objectPoolManagerPrefab: {fileID: 1719559684}
   sceneManagerPrefab: {fileID: 1723771317}
+  musicManagerPrefab: {fileID: 1100702556}
+  soundManagerPrefab: {fileID: 9924580}
   gameSceneNames:
   - MainMenu
   - Level1
@@ -2137,6 +2190,9 @@ MonoBehaviour:
   - Level3
   menuSceneNames:
   - MainMenu
+  - PauseMenu
+  pauseMenuSceneName: PauseMenu
+  pauseMenuPrefab: {fileID: 5641255298470664797, guid: 3036e2701955878488e9ba721c23f597, type: 3}
   isPaused: 0
   score: 0
 --- !u!4 &630800097
@@ -3891,6 +3947,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048092096}
   m_CullTransparentMesh: 1
+--- !u!1 &1100702556
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1100702558}
+  - component: {fileID: 1100702557}
+  m_Layer: 0
+  m_Name: MusicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1100702557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100702556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d62f262c0c3d5f945ad3ab2b048d26c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Managers.MusicManager
+  mainMenuMusic: {fileID: 0}
+  levelMusic: []
+  gameplayMusic: {fileID: 0}
+  volume: 0.7
+  dontDestroyOnLoad: 1
+  persistVolume: 1
+--- !u!4 &1100702558
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100702556}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 68.37664, y: 33.21909, z: -38.23186}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1108742731
 GameObject:
   m_ObjectHideFlags: 0
@@ -4821,10 +4927,142 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3ebf75ba2fe85c4a9da78bf59e5c0fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Pool.ObjectPoolManager
-  poolConfigs: []
+  poolConfigs:
+  - prefab: {fileID: 8948289500178815609, guid: 8800656e15d98614bbb3cdd8bcbcb1e1, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8948289500178815609, guid: db6463bedd4763746a779385edde67f2, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8948289500178815609, guid: 02e0bd259da0b0046bb4db1bd04f7769, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8948289500178815609, guid: c511d57e8e96b3840b892dfcafe8c6ff, type: 3}
+    poolName: 
+    preloadCount: 1
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 6153752351596253516, guid: 37814adf098199941854cdcc23bc6325, type: 3}
+    poolName: Projectile
+    preloadCount: 100
+    maxSize: 1
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 6198441749571743864, guid: ef741a6d417d94140bfbe7f5b315273a, type: 3}
+    poolName: 
+    preloadCount: 100
+    maxSize: 100
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
+    poolName: 
+    preloadCount: 10
+    maxSize: 100
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
+    poolName: 
+    preloadCount: 50
+    maxSize: 100
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
+    poolName: 
+    preloadCount: 10
+    maxSize: 50
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
+    poolName: 
+    preloadCount: 10
+    maxSize: 50
+    allowExpansion: 1
+    container: {fileID: 0}
+  - prefab: {fileID: 2789725849054566533, guid: 3c4a75f708e66ef41b7eabb9fde6ff4d, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 865822754610070646, guid: 858988d9cbabfed44b4b0f9a1579af26, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8151750392422512068, guid: 09670b3119f82364481320992d57d20b, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 767769785581692861, guid: 12bdaabe8da2cbe4f8a393cc7cdf23b7, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 3123347993570933115, guid: 929a1e6d6e7d04f488f8eceae64e1047, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 8207956361781205515, guid: 64e68aeca70417b40b9041274b837ad0, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 6828813395308681235, guid: e0be7116ba090f841829a47d9732d6cc, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 2822010952683786624, guid: 50108592e8674504f9e70612ab68a2d5, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 4546963744727535868, guid: ab18f0d8847cf4b4daefc7b036334177, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 1430679909345815488, guid: abc79668e463ac446a54fbee71302fdc, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 162803839843656927, guid: c922b9ebef1996f4c9d2d067314de402, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
+  - prefab: {fileID: 6223322381924712386, guid: e853caa2168e04a4a8b4bd39e16e0855, type: 3}
+    poolName: 
+    preloadCount: 5
+    maxSize: 10
+    allowExpansion: 0
+    container: {fileID: 0}
   poolsContainer: {fileID: 0}
   showDebugInfo: 1
-  logPoolOperations: 0
+  logPoolOperations: 1
 --- !u!4 &1719559686
 Transform:
   m_ObjectHideFlags: 0
@@ -5984,3 +6222,5 @@ SceneRoots:
   - {fileID: 630800097}
   - {fileID: 1723771319}
   - {fileID: 1719559686}
+  - {fileID: 1100702558}
+  - {fileID: 9924582}

@@ -29,11 +29,11 @@ namespace Dwayne.Abilities
 
         protected override bool DoUse(GameObject user, Vector3 targetPosition)
         {
-            Rigidbody rb = user.GetComponent<Rigidbody>();
-            CharacterController cc = user.GetComponent<CharacterController>();
+            Rigidbody rb = user.GetComponentInParent<Rigidbody>();
+            CharacterController cc = user.GetComponentInParent<CharacterController>();
             if (rb == null && cc == null)
             {
-                Debug.LogWarning("IceSkatesAbility: user has no Rigidbody or CharacterController.");
+                Debug.LogWarning("IceSkatesAbility: user (and root) has no Rigidbody or CharacterController.");
                 return false;
             }
 
@@ -62,12 +62,17 @@ namespace Dwayne.Abilities
             else
                 direction.Normalize();
 
+            float baseSpeed = movementSpeedMultiplier * 5f;
+            float pathBonus = (pathSegmentLength / Mathf.Max(0.01f, pathDuration)) * (1f + slowResistance) * pathWidth * 0.1f;
+            float speed = baseSpeed + pathBonus;
+
             if (rb != null)
             {
-                float baseSpeed = movementSpeedMultiplier * 5f;
-                float pathBonus = (pathSegmentLength / Mathf.Max(0.01f, pathDuration)) * (1f + slowResistance) * pathWidth * 0.1f;
-                float speed = baseSpeed + pathBonus;
                 rb.linearVelocity = direction * speed;
+            }
+            else if (cc != null)
+            {
+                cc.Move(direction * speed * 0.15f);
             }
 
             return true;

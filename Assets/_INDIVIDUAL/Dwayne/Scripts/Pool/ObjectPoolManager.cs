@@ -1,11 +1,15 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using Managers;
+using SceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace Pool
 {
     /// <summary>
     /// Central manager for all object pools in the game
-    /// Singleton pattern for global access
+    /// Singleton pattern for global access.
+    /// Defers pool initialization when in a menu scene (no NavMesh) until a game scene loads.
     /// </summary>
     public class ObjectPoolManager : MonoBehaviour
     {
@@ -26,6 +30,8 @@ namespace Pool
         // Runtime pools
         private Dictionary<string, ObjectPool> pools;
         private Dictionary<GameObject, string> objectToPoolName; // Track which pool an object belongs to
+        private bool _poolsInitialized;
+        private bool _deferPoolInit;
 
         private void Awake()
         {
@@ -38,7 +44,29 @@ namespace Pool
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
+            string currentScene = SceneManager.GetActiveScene().name;
+            if (GameManager.Instance != null && !GameManager.Instance.IsGameScene(currentScene))
+            {
+                _deferPoolInit = true;
+                pools = new Dictionary<string, ObjectPool>();
+                objectToPoolName = new Dictionary<GameObject, string>();
+                SceneManager.sceneLoaded += OnSceneLoaded;
+                return;
+            }
+
             InitializePools();
+            _poolsInitialized = true;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (!_deferPoolInit || _poolsInitialized) return;
+            if (GameManager.Instance != null && !GameManager.Instance.IsGameScene(scene.name)) return;
+
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            _deferPoolInit = false;
+            InitializePools();
+            _poolsInitialized = true;
         }
 
         #region Initialization
@@ -380,6 +408,7 @@ namespace Pool
 
         private void OnDestroy()
         {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             ClearAllPools();
         }
 

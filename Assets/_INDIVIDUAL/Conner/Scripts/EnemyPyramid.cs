@@ -4,6 +4,7 @@ using System.Collections;
 using System; // Required for Action
 using Interfaces;
 using Dwayne.Effects;
+using Managers;
 
 public class EnemyPyramid : MonoBehaviour, IDamagable
 {
@@ -31,6 +32,10 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
     [Header("Combat")]
     [SerializeField] private float knockbackDistance = 2f;
     [SerializeField] private float knockbackDuration = 0.2f;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip attackSound;
+    [SerializeField] private AudioClip hitReceivedSound;
 
     private NavMeshAgent agent;
     private Renderer rend;
@@ -69,6 +74,8 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
 
     private void Update()
     {
+        if (GameManager.Instance == null || !GameManager.IsGameReady)
+            return;
         // Stop logic if dead or missing player
         if (!IsAlive || player == null || agent == null || !agent.isOnNavMesh) return;
 
@@ -157,6 +164,8 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
         if (!IsAlive) return 0;
 
         currentHealth -= amount;
+        if (hitReceivedSound != null && Managers.SoundManager.Instance != null)
+            Managers.SoundManager.Instance.PlaySFX(hitReceivedSound);
         OnDamaged?.Invoke(amount, hitPoint, source);
 
         // Apply knockback using the hit direction
@@ -200,6 +209,8 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
 
     private void Die()
     {
+        if (attackSound != null && Managers.SoundManager.Instance != null)
+            Managers.SoundManager.Instance.PlaySFX(attackSound);
         OnDeath?.Invoke();
         StopAllCoroutines();
         Destroy(gameObject);

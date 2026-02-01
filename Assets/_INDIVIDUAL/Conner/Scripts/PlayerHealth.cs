@@ -1,12 +1,17 @@
 using System;
 using UnityEngine;
 using Interfaces;
+using Managers;
 
 public class PlayerHealth : MonoBehaviour, IDamagable
 {
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
+
+    [Header("Audio")]
+    [Tooltip("Play when player takes damage")]
+    [SerializeField] private AudioClip hitReceivedSound;
 
     // IDamagable
     public float CurrentHealth => currentHealth;
@@ -28,6 +33,9 @@ public class PlayerHealth : MonoBehaviour, IDamagable
 
         float actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
+
+        if (hitReceivedSound != null && SoundManager.Instance != null)
+            SoundManager.Instance.PlaySFX(hitReceivedSound);
 
         Debug.Log($"Player took {actualDamage} damage. Current health: {currentHealth}");
 

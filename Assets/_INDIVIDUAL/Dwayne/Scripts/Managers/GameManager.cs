@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Pool;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -32,6 +33,8 @@ namespace Managers
         [Header("System References (Optional)")]
         [SerializeField] private GameObject objectPoolManagerPrefab;
         [SerializeField] private GameObject sceneManagerPrefab;
+        [SerializeField] private GameObject musicManagerPrefab;
+        [SerializeField] private GameObject soundManagerPrefab;
         
         [Header("Scene Settings")]
         [Tooltip("Scene names that are considered game scenes (player will spawn here)")]
@@ -39,9 +42,17 @@ namespace Managers
         
         [Tooltip("Scene names that are menu scenes (player will NOT spawn here)")]
         [SerializeField] private string[] menuSceneNames = new string[] { "MainMenu" };
-        
+
+        [Tooltip("Use ONE of these: Prefab OR Scene. Prefab takes priority. Scene is only used when Pause Menu Prefab is empty. Scene must be in Build Settings.")]
+        [SerializeField] private string pauseMenuSceneName = "PauseMenu";
+
+        [Tooltip("Optional: Pause menu UI prefab. If set, we instantiate this when pausing (scene is ignored). If empty, we load the scene above instead.")]
+        [SerializeField] private GameObject pauseMenuPrefab;
+
         private ObjectPoolManager objectPoolManager;
         private SceneManager sceneManager;
+        private MusicManager musicManager;
+        private SoundManager soundManager;
         private GameObject playerInstance;
 
         public bool isPaused = false;
@@ -56,9 +67,18 @@ namespace Managers
         public System.Action OnGameEnd;
         public System.Action OnGamePaused;
         public System.Action OnGameResumed;
-        
+
+        /// <summary>
+        /// True when we are in a game scene and InitializeGame() has run (player spawned, game started).
+        /// AI and other systems can check this before running (e.g. NavMesh agents wait until game is ready).
+        /// </summary>
+        public static bool IsGameReady { get; private set; }
+
         private int sceneIndex = 0;
-        
+        private bool pauseMenuSceneLoaded = false;
+        private GameObject pauseMenuInstance = null;
+        private string _previousPlayerActionMapName = "Player";
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -92,16 +112,86 @@ namespace Managers
 
         public void PauseGame()
         {
+            if (isPaused) return;
             isPaused = true;
             Time.timeScale = 0f;
+            UnlockCursor();
+
+            // Switch PlayerInput to UI so clicks go to pause menu buttons, not to Player actions
+            var playerInput = playerInstance != null ? playerInstance.GetComponentInChildren<PlayerInput>(true) : Object.FindFirstObjectByType<PlayerInput>();
+            if (playerInput != null)
+            {
+                if (playerInput.currentActionMap != null)
+                    _previousPlayerActionMapName = playerInput.currentActionMap.name;
+                if (playerInput.actions.FindActionMap("UI") != null)
+                    playerInput.SwitchCurrentActionMap("UI");
+            }
+
+            // Clean up any existing pause menu first (prevents duplicates)
+            if (pauseMenuInstance != null)
+            {
+                Destroy(pauseMenuInstance);
+                pauseMenuInstance = null;
+            }
+
+            if (pauseMenuPrefab != null)
+            {
+                pauseMenuInstance = Instantiate(pauseMenuPrefab);
+            }
+            else if (!string.IsNullOrEmpty(pauseMenuSceneName))
+            {
+                // Check if scene is already loaded to prevent duplicates
+                var existingScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(pauseMenuSceneName);
+                if (!existingScene.isLoaded)
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(pauseMenuSceneName, LoadSceneMode.Additive);
+                }
+                // Mark as loaded - the scene will load asynchronously
+                pauseMenuSceneLoaded = true;
+            }
+
+            OnGamePaused?.Invoke();
         }
 
         public void ResumeGame()
         {
+            if (!isPaused) return;
             isPaused = false;
             Time.timeScale = 1f;
+
+            // Switch PlayerInput back to Player so gameplay input works again
+            var playerInput = playerInstance != null ? playerInstance.GetComponentInChildren<PlayerInput>(true) : Object.FindFirstObjectByType<PlayerInput>();
+            if (playerInput != null && !string.IsNullOrEmpty(_previousPlayerActionMapName))
+                playerInput.SwitchCurrentActionMap(_previousPlayerActionMapName);
+
+            if (pauseMenuInstance != null)
+            {
+                Destroy(pauseMenuInstance);
+                pauseMenuInstance = null;
+            }
+            else if (pauseMenuSceneLoaded && !string.IsNullOrEmpty(pauseMenuSceneName))
+            {
+                var scene = UnityEngine.SceneManagement.SceneManager.GetSceneByName(pauseMenuSceneName);
+                if (scene.isLoaded)
+                    UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(scene);
+                pauseMenuSceneLoaded = false;
+            }
+
             LockCursor();
             OnGameResumed?.Invoke();
+        }
+
+        /// <summary>
+        /// Toggle pause when in a game (Escape). Only works when IsGameReady; no-op in menu.
+        /// Call from the Player Input "Pause" action.
+        /// </summary>
+        public void TogglePauseInGame()
+        {
+            if (!IsGameReady) return;
+            if (isPaused)
+                ResumeGame();
+            else
+                PauseGame();
         }
 
         public void AddScore(int points)
@@ -114,17 +204,30 @@ namespace Managers
         /// </summary>
         private void OnSceneLoaded(string sceneName)
         {
+            // If we loaded a different scene (e.g. level or main menu), clear pause state
+            if (sceneName != pauseMenuSceneName)
+            {
+                pauseMenuSceneLoaded = false;
+                pauseMenuInstance = null;
+                isPaused = false;
+                Time.timeScale = 1f;
+            }
+
             // Prevent duplicate initialization
             if (isInitializingScene) return;
 
-            // Menu scene: show cursor so player can click Play, Settings, etc.
+            // Menu scene: show cursor and play menu BGM
             if (!IsGameScene(sceneName))
             {
+                IsGameReady = false;
                 UnlockCursor();
+                musicManager?.PlayMainMenu();
                 return;
             }
 
-            // Game scene: spawn player and lock cursor when ready
+            // Game scene: play level BGM and spawn player
+            sceneIndex = GetGameSceneIndex(sceneName);
+            musicManager?.PlayLevel(sceneIndex);
             isInitializingScene = true;
             StartCoroutine(InitializeGameScene());
         }
@@ -143,9 +246,10 @@ namespace Managers
         }
 
         /// <summary>
-        /// Check if the current scene is a game scene (not a menu scene)
+        /// Check if the given scene is a game scene (not a menu scene).
+        /// Used by ObjectPoolManager and others to defer work until a game scene loads.
         /// </summary>
-        private bool IsGameScene(string sceneName)
+        public bool IsGameScene(string sceneName)
         {
             // Check if it's a menu scene first
             foreach (string menuScene in menuSceneNames)
@@ -219,22 +323,61 @@ namespace Managers
                 sceneManager.OnSceneLoadComplete += OnSceneLoaded;
             }
 
+            // Initialize Music Manager
+            musicManager = Object.FindFirstObjectByType<MusicManager>();
+            if (!musicManager && musicManagerPrefab)
+            {
+                var go = Instantiate(musicManagerPrefab);
+                musicManager = go.GetComponent<MusicManager>();
+                DontDestroyOnLoad(go);
+            }
+            if (!musicManager)
+            {
+                var go = new GameObject("MusicManager");
+                musicManager = go.AddComponent<MusicManager>();
+                DontDestroyOnLoad(go);
+            }
+
+            // Initialize Sound Manager
+            soundManager = Object.FindFirstObjectByType<SoundManager>();
+            if (!soundManager && soundManagerPrefab)
+            {
+                var go = Instantiate(soundManagerPrefab);
+                soundManager = go.GetComponent<SoundManager>();
+            }
+            if (!soundManager)
+            {
+                var go = new GameObject("SoundManager");
+                soundManager = go.AddComponent<SoundManager>();
+                DontDestroyOnLoad(go);
+            }
+
             Debug.Log("GameManager: Framework systems initialized successfully");
+        }
+
+        private int GetGameSceneIndex(string sceneName)
+        {
+            if (gameSceneNames == null) return 0;
+            for (int i = 0; i < gameSceneNames.Length; i++)
+                if (gameSceneNames[i] == sceneName) return i;
+            return 0;
         }
 
         private void Start()
         {
             // Check if we're in a game scene before spawning player
             string currentSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            
+
             if (IsGameScene(currentSceneName))
             {
-                // We're in a game scene, initialize it
+                sceneIndex = GetGameSceneIndex(currentSceneName);
+                musicManager?.PlayLevel(sceneIndex);
                 StartCoroutine(InitializeGameScene());
             }
             else
             {
-                // We're in a menu scene: show cursor for UI (Play, Settings, etc.)
+                IsGameReady = false;
+                musicManager?.PlayMainMenu();
                 UnlockCursor();
                 Debug.Log($"GameManager: In menu scene '{currentSceneName}', skipping player spawn.");
             }
@@ -428,7 +571,7 @@ namespace Managers
         private void Update()
         {
             HandleEnemySpawning();
-            
+
             // In menu scenes: keep cursor visible and unlocked
             if (IsInMenuScene())
             {
@@ -447,7 +590,8 @@ namespace Managers
             score = 0;
             killCount = 0;
             currentEnemyCount = 0;
-            
+            IsGameReady = true;
+
             OnKillCountChanged?.Invoke(killCount);
             OnGameStart?.Invoke();
 
@@ -457,15 +601,29 @@ namespace Managers
 
         private void HandleEnemySpawning()
         {
-           // Talk to spawner to spawn enemies at intervals
-           if (enemyPrefabs.Length == 0 || enemySpawnPoints.Length == 0)
-               return;
+            if (enemyPrefabs.Length == 0 || enemySpawnPoints.Length == 0)
+                return;
+            if (currentEnemyCount >= maxEnemies)
+                return;
+            // Talk to spawner to spawn enemies at intervals (spawner calls NotifyEnemySpawned when it spawns)
         }
         
-         public void OnEnemyKilled()
+        public void OnEnemyKilled()
         {
+            currentEnemyCount = Mathf.Max(0, currentEnemyCount - 1);
             AddKill();
         }
+
+        /// <summary>
+        /// Call when an enemy is spawned so GameManager can track count and enforce maxEnemies.
+        /// </summary>
+        public void NotifyEnemySpawned()
+        {
+            currentEnemyCount++;
+        }
+
+        public int GetCurrentEnemyCount() => currentEnemyCount;
+        public int GetMaxEnemies() => maxEnemies;
 
         public void OnPlayerDeath()
         {
@@ -501,6 +659,18 @@ namespace Managers
 
             // Lock cursor after respawn
             LockCursor();
+        }
+
+        /// <summary>
+        /// Load the main menu scene. Call this from a "Back to Menu" or "Quit to Menu" button On Click.
+        /// </summary>
+        public void LoadMainMenu()
+        {
+            string sceneName = (menuSceneNames != null && menuSceneNames.Length > 0) ? menuSceneNames[0] : "MainMenu";
+            if (sceneManager != null)
+                sceneManager.LoadScene(sceneName);
+            else
+                UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
         }
 
         /// <summary>

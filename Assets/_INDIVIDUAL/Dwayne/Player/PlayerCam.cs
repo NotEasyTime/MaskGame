@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using Managers;
 
 namespace Player
 {
@@ -72,11 +73,17 @@ namespace Player
 
         public void OnLook(InputValue value)
         {
+            if (GameManager.Instance != null && GameManager.Instance.isPaused) return;
             lookInput = value.Get<Vector2>();
         }
 
         private void Update()
         {
+            if (GameManager.Instance != null && GameManager.Instance.isPaused)
+            {
+                lookInput = Vector2.zero;
+                return;
+            }
             HandleMouseLook();
 
             if (enableFOVKick && cam != null && rb != null)

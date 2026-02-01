@@ -4,6 +4,7 @@ using System.Collections;
 using System;
 using Interfaces;
 using Dwayne.Effects;
+using Managers;
 
 public class EnemySphere : MonoBehaviour, IDamagable
 {
@@ -39,6 +40,10 @@ public class EnemySphere : MonoBehaviour, IDamagable
     [SerializeField] private float teleportCheckHeight = 4f;
     [SerializeField] private float teleportRadius = 1.5f;
     [SerializeField] private float teleportCooldown = 1f;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip attackSound;
+    [SerializeField] private AudioClip hitReceivedSound;
 
     private float lastTeleportTime;
 
@@ -80,6 +85,8 @@ public class EnemySphere : MonoBehaviour, IDamagable
 
     private void Update()
     {
+        if (GameManager.Instance == null || !GameManager.IsGameReady)
+            return;
         if (agent == null || !agent.isOnNavMesh || player == null)
             return;
 
@@ -119,14 +126,17 @@ public class EnemySphere : MonoBehaviour, IDamagable
     
     void TryTeleport()
     {
-        if (NavMesh.SamplePosition(player.position, out NavMeshHit navHit, teleportRadius, NavMesh.AllAreas))
-        {
-            agent.enabled = false;
-            agent.Warp(navHit.position);
-            agent.enabled = true;
+        if (!NavMesh.SamplePosition(player.position, out NavMeshHit navHit, teleportRadius, NavMesh.AllAreas))
+            return;
+        // Only teleport if destination has enough clearance above (avoid warping under low ceiling)
+        if (teleportCheckHeight > 0f && Physics.Raycast(navHit.position, Vector3.up, teleportCheckHeight))
+            return;
 
-            lastTeleportTime = Time.time;
-        }
+        agent.enabled = false;
+        agent.Warp(navHit.position);
+        agent.enabled = true;
+
+        lastTeleportTime = Time.time;
     }
     
 
@@ -141,7 +151,9 @@ public class EnemySphere : MonoBehaviour, IDamagable
         if (!IsAlive) return 0;
 
         currentHealth -= amount;
-        
+        if (hitReceivedSound != null && Managers.SoundManager.Instance != null)
+            Managers.SoundManager.Instance.PlaySFX(hitReceivedSound);
+
         // Trigger Event
         OnDamaged?.Invoke(amount, hitPoint, source);
 
@@ -275,6 +287,8 @@ public class EnemySphere : MonoBehaviour, IDamagable
             PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
             if (playerHealth != null && playerHealth.IsAlive)
             {
+                if (attackSound != null && Managers.SoundManager.Instance != null)
+                    Managers.SoundManager.Instance.PlaySFX(attackSound);
                 Vector3 hitPoint = other.ClosestPoint(transform.position);
                 Vector3 hitDir = (transform.position - other.transform.position).normalized;
                 playerHealth.TakeDamage(contactDamage, hitPoint, hitDir, gameObject);

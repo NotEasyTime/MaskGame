@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Interfaces;
+using Managers;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -21,7 +22,12 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 12f;
     public float gravity = -30f; 
     public float coyoteTime = 0.15f; 
-    public float jumpBufferTime = 0.15f; 
+    public float jumpBufferTime = 0.15f;
+
+    [Header("Audio")]
+    [Tooltip("Play when grounded and moving (footsteps)")]
+    [SerializeField] private AudioClip footstepSound;
+    [SerializeField] private float footstepInterval = 0.4f;
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -32,6 +38,7 @@ public class PlayerMovement : MonoBehaviour
     private float landingDelay;
     private bool isDead;
     private IDamagable damagable;
+    private float lastFootstepTime;
 
     void Start()
     {
@@ -55,6 +62,15 @@ public class PlayerMovement : MonoBehaviour
     public void OnMove(InputValue value) => moveInput = isDead ? Vector2.zero : value.Get<Vector2>();
     public void OnJump(InputValue value) { if (!isDead && value.isPressed) jumpBufferCounter = jumpBufferTime; }
     public void OnSprint(InputValue value) => isSprinting = !isDead && value.isPressed;
+
+    /// <summary>
+    /// Called by Input System when the Pause action (e.g. Escape) is pressed. Toggles pause and PauseMenu in game.
+    /// </summary>
+    public void OnPause(InputValue value)
+    {
+        if (value.isPressed)
+            GameManager.Instance?.TogglePauseInGame();
+    }
 
     private void OnCollisionStay(Collision collision)
     {
@@ -88,7 +104,15 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isDead) return;
         if (landingDelay > 0) landingDelay -= Time.deltaTime;
-        
+
+        // Footsteps: grounded + moving
+        if (footstepSound != null && SoundManager.Instance != null && isGrounded && landingDelay <= 0
+            && moveInput.magnitude > 0.1f && Time.time - lastFootstepTime >= footstepInterval)
+        {
+            SoundManager.Instance.PlaySFX(footstepSound, 0.6f);
+            lastFootstepTime = Time.time;
+        }
+
         // Update Coyote Time
         if (!isGrounded) coyoteCounter -= Time.deltaTime;
 

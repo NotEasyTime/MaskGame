@@ -46,11 +46,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.IceSpearAbility
   elementType: 0
   cooldownDuration: 1
-  spawnVFX: {fileID: 0}
-  projectileVFX: {fileID: 0}
-  impactVFX: {fileID: 0}
+  spawnVFX: {fileID: 1451516067890809240, guid: 8b3dca98eef6a98428c6829438d8495e, type: 3}
+  projectileVFX: {fileID: 8033368338064425645, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
+  impactVFX: {fileID: 5013003061549203214, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
   trailVFX: {fileID: 7000000000000000001, guid: b8e3c2d1f4a5678901234567890bcdef, type: 3}
   vfxLifetime: 2
+  impactVFXScaleFactor: 0.5
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  completionSound: {fileID: 0}
   canModifySpeed: 0
   speedMultiplier: 0.5
   speedDuration: 2

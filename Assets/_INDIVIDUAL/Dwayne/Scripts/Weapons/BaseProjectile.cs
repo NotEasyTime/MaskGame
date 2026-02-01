@@ -24,6 +24,11 @@ namespace Dwayne.Weapons
         [SerializeField] protected float trailSpawnInterval = 0.05f;
         [SerializeField] protected float trailVFXLifetime = 0.5f;
 
+        [Header("Impact VFX (optional, can be set by ability)")]
+        [Tooltip("Prefab to spawn at impact point on hit. Leave empty if set via SetImpactVFX from ability.")]
+        [SerializeField] protected GameObject impactVFXPrefab;
+        [SerializeField] protected float impactVFXLifetime = 2f;
+
         protected float damage;
         protected float speed;
         protected Vector3 direction;
@@ -91,6 +96,29 @@ namespace Dwayne.Weapons
             lastTrailSpawnTime = Time.time;
         }
 
+        /// <summary>
+        /// Optional impact VFX to spawn on hit. Call after Launch from ability when impactVFX is set.
+        /// </summary>
+        public virtual void SetImpactVFX(GameObject prefab, float lifetime = 2f)
+        {
+            impactVFXPrefab = prefab;
+            impactVFXLifetime = lifetime > 0 ? lifetime : 2f;
+        }
+
+        /// <summary>
+        /// Spawns impact VFX at the given point (called from TryHit when impactVFXPrefab is set).
+        /// </summary>
+        protected virtual void SpawnImpactVFXAt(Vector3 point, Vector3 normal)
+        {
+            if (impactVFXPrefab == null)
+                return;
+            Quaternion rotation = normal.sqrMagnitude > 0.01f ? Quaternion.LookRotation(normal) : Quaternion.identity;
+            GameObject vfx = Instantiate(impactVFXPrefab, point, rotation);
+            vfx.SetActive(true);
+            if (impactVFXLifetime > 0f)
+                Destroy(vfx, impactVFXLifetime);
+        }
+
         public virtual void Launch(Vector3 origin, Vector3 direction, float speed, float damage, GameObject owner = null)
         {
             this.damage = damage;
@@ -143,6 +171,9 @@ namespace Dwayne.Weapons
             // Check layer mask
             if (((1 << other.gameObject.layer) & hitMask) == 0)
                 return;
+
+            if (impactVFXPrefab != null)
+                SpawnImpactVFXAt(hitPoint, hitNormal);
 
             OnHit(other, hitPoint, hitNormal);
         }

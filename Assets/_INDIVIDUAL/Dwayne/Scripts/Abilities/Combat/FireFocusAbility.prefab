@@ -46,14 +46,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.FireFocusAbility
   elementType: 0
   cooldownDuration: 1
-  spawnVFX: {fileID: 0}
-  projectileVFX: {fileID: 0}
-  impactVFX: {fileID: 0}
-  trailVFX: {fileID: 0}
+  spawnVFX: {fileID: 8700258344733543052, guid: a1f8d8aa14428af42809cddeac1f6381, type: 3}
+  projectileVFX: {fileID: 7866002994442904433, guid: ce5e6c05cc9837b4e8e08e6507db9d07, type: 3}
+  impactVFX: {fileID: 4830294202082529915, guid: 04e8b0b6ae02ffb419cc12f41626e4e5, type: 3}
+  trailVFX: {fileID: 2763475566794699734, guid: 5c2ffe94b2dbd7f4abf65525736f9f1b, type: 3}
   vfxLifetime: 2
-  canSlow: 0
-  slowMultiplier: 0.5
-  slowDuration: 2
+  impactVFXScaleFactor: 0.5
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  completionSound: {fileID: 0}
+  canModifySpeed: 0
+  speedMultiplier: 0.5
+  speedDuration: 2
+  applySpeedToSelf: 0
+  selfSpeedMultiplier: 1.5
+  selfSpeedDuration: 2
+  canDoT: 0
+  dotDamagePerTick: 5
+  dotTickInterval: 0.5
+  dotDuration: 4
+  applyDoTToSelf: 0
+  selfDotDamagePerTick: 2
+  selfDotTickInterval: 0.5
+  selfDotDuration: 2
   range: 30
   damage: 25
   hitMask:
@@ -61,3 +76,5 @@ MonoBehaviour:
     m_Bits: 4294967295
   beamWidth: 0.1
   beamVFX: {fileID: 0}
+  showDebugLogs: 1
+  showDebugGizmos: 1

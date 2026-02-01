@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Managers;
 
 namespace Dwayne.Masks
 {
@@ -63,6 +64,22 @@ namespace Dwayne.Masks
 
         void Update()
         {
+            if (GameManager.Instance != null && GameManager.Instance.isPaused)
+            {
+                if (isAltCombatPressed || isCombatPressed)
+                {
+                    maskManager.CancelAltCombatAbility();
+                    maskManager.CancelCombatAbility();
+                }
+                isCombatPressed = false;
+                isCombatHolding = false;
+                isMovementPressed = false;
+                isMovementHolding = false;
+                isAltCombatPressed = false;
+                isAltCombatHolding = false;
+                return;
+            }
+
             // Update combat hold state
             if (isCombatPressed)
             {
@@ -103,6 +120,12 @@ namespace Dwayne.Masks
                     OnAltCombatHoldStart();
                 }
             }
+            else
+            {
+                // Safety: if alt button is not pressed but alt ability is still channeling, cancel it (handles missed release events)
+                if (maskManager.CurrentAltCombatAbility != null && maskManager.CurrentAltCombatAbility.IsChanneled)
+                    maskManager.CancelAltCombatAbility();
+            }
         }
 
         #region Combat Ability Input
@@ -113,8 +136,8 @@ namespace Dwayne.Masks
         /// </summary>
         public void OnCombatAbility(InputValue value)
         {
-            if (maskManager == null)
-                return;
+            if (maskManager == null) return;
+            if (GameManager.Instance != null && GameManager.Instance.isPaused) return;
 
             if (value.isPressed)
             {
@@ -144,6 +167,9 @@ namespace Dwayne.Masks
                 {
                     OnCombatTap();
                 }
+
+                // Cancel channeled primary combat ability (e.g. ice breath on left click)
+                maskManager.CancelCombatAbility();
 
                 isCombatPressed = false;
                 isCombatHolding = false;
@@ -193,8 +219,8 @@ namespace Dwayne.Masks
         /// </summary>
         public void OnMovementAbility(InputValue value)
         {
-            if (maskManager == null)
-                return;
+            if (maskManager == null) return;
+            if (GameManager.Instance != null && GameManager.Instance.isPaused) return;
 
             if (value.isPressed)
             {
@@ -277,8 +303,8 @@ namespace Dwayne.Masks
         /// </summary>
         public void OnAltCombatAbility(InputValue value)
         {
-            if (maskManager == null)
-                return;
+            if (maskManager == null) return;
+            if (GameManager.Instance != null && GameManager.Instance.isPaused) return;
 
             if (value.isPressed)
             {
@@ -326,6 +352,8 @@ namespace Dwayne.Masks
 
             if (maskManager == null || !value.isPressed)
                 return;
+            if (GameManager.Instance != null && GameManager.Instance.isPaused)
+                return;
 
             maskManager.PreviousMask();
         }
@@ -340,6 +368,8 @@ namespace Dwayne.Masks
                 Debug.Log($"MaskInputHandler: OnNext triggered (isPressed: {value.isPressed})");
 
             if (maskManager == null || !value.isPressed)
+                return;
+            if (GameManager.Instance != null && GameManager.Instance.isPaused)
                 return;
 
             maskManager.NextMask();

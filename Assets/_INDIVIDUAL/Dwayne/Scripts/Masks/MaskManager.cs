@@ -389,6 +389,20 @@ namespace Dwayne.Masks
         }
 
         /// <summary>
+        /// Cancels the weapon's primary fire ability (for channeled abilities like ice breath on left click).
+        /// </summary>
+        public void CancelCombatAbility()
+        {
+            if (weaponComponent == null || weaponComponent.FireAbility == null)
+                return;
+            if (!weaponComponent.FireAbility.IsChanneled)
+                return;
+            weaponComponent.FireAbility.Cancel();
+            if (showDebugLogs)
+                Debug.Log("MaskManager: Cancelled combat ability");
+        }
+
+        /// <summary>
         /// Cancels the weapon's alt-fire ability (for channeled abilities).
         /// </summary>
         public void CancelAltCombatAbility()
