@@ -46,25 +46,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.AirCombatAbility
   elementType: 0
   cooldownDuration: 1
-  spawnVFX: {fileID: 0}
+  spawnVFX: {fileID: 2590962639825161759, guid: 96f418c79df2d524a91d61710e86cc85, type: 3}
   projectileVFX: {fileID: 0}
   impactVFX: {fileID: 0}
   trailVFX: {fileID: 0}
   vfxLifetime: 2
-  canSlow: 0
-  slowMultiplier: 0.5
-  slowDuration: 2
+  canModifySpeed: 0
+  speedMultiplier: 0.5
+  speedDuration: 2
+  applySpeedToSelf: 0
+  selfSpeedMultiplier: 1.5
+  selfSpeedDuration: 2
   canDoT: 0
   dotDamagePerTick: 5
   dotTickInterval: 0.5
   dotDuration: 4
+  applyDoTToSelf: 0
+  selfDotDamagePerTick: 2
+  selfDotTickInterval: 0.5
+  selfDotDuration: 2
   range: 25
-  damage: 15
-  pushForce: 10
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  explosionRadius: 5
+  damage: 15
+  knockbackForce: 15
+  upwardForce: 5
   showDebugTrace: 1
   debugTraceDuration: 0.5
   debugTraceColor: {r: 0, g: 1, b: 1, a: 1}
   debugHitColor: {r: 1, g: 0, b: 0, a: 1}
+  debugExplosionColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
