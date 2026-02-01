@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Dwayne.Abilities;
@@ -13,10 +14,23 @@ namespace Dwayne.Masks
     /// Allows independent cycling of weapon mask and movement mask.
     /// NextMask cycles the weapon, PreviousMask cycles the movement ability.
     /// </summary>
-    public class MaskManager : MonoBehaviour
+    public class MaskManager : MonoBehaviour, IDamagable
     {
         public Image ability;
         public Image movement;
+        public List<Sprite>  ability_sprites;
+        public List<Sprite>  movement_sprites;
+        
+        [Header("Health")]
+        [SerializeField] private float maxHealth = 1;
+        [SerializeField] private float currentHealth = 1;
+        
+        public float CurrentHealth => currentHealth;
+        public float MaxHealth => maxHealth;
+        public bool IsAlive => currentHealth > 0f;
+        
+        public event Action<float, Vector3, object> OnDamaged;
+        public event Action OnDeath;
         
         private List<Color> colors = new List<Color>()
         {
@@ -25,6 +39,18 @@ namespace Dwayne.Masks
             Color.red,
             Color.blue
             
+        };
+
+        private List<int> maskHealth = new List<int>()
+        {
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
         };
         
         [Header("Masks")]
@@ -103,6 +129,45 @@ namespace Dwayne.Masks
             // Equip the initial masks
             EquipWeaponFromMask(weaponMaskIndex);
             EquipMovementFromMask(movementMaskIndex);
+        }
+
+        public float TakeDamage(float amount, Vector3 hitPoint, Vector3 hitDirection, object source = null)
+        {
+            // 1. Damage the Weapon Mask
+            if (maskHealth[weaponMaskIndex] > 0)
+            {
+                maskHealth[weaponMaskIndex] -= 1;
+                UpdateMaskVisuals(ability, maskHealth[weaponMaskIndex], weaponMaskIndex);
+            }
+
+            // 2. Damage the Movement Mask 
+            // Note: Ensure the index logic (movementMaskIndex + 3) matches your maskHealth list size
+            int movIndexInList = movementMaskIndex + 4; // Assuming 0-3 are weapons, 4-7 are movement
+            if (movIndexInList < maskHealth.Count && maskHealth[movIndexInList] > 0)
+            {
+                maskHealth[movIndexInList] -= 1;
+                UpdateMaskVisuals(movement, maskHealth[movIndexInList], movementMaskIndex);
+            }
+
+            return amount; 
+        }
+
+        private void UpdateMaskVisuals(Image targetImage, int currentHP, int colorIndex)
+        {
+            if (targetImage == null) return;
+            float healthPercent = Mathf.Clamp(currentHP / 3f, 0.2f, 1f);
+            UpdateCrackOverlays(currentHP, targetImage == ability);
+        }
+        
+        private void UpdateCrackOverlays(int hp, bool isAbility)
+        {
+            if (maskHealth[weaponMaskIndex] > 21) ability.sprite = ability_sprites[0];
+            if (maskHealth[weaponMaskIndex] < 21) ability.sprite = ability_sprites[1];
+            if (maskHealth[weaponMaskIndex] < 11) ability.sprite = ability_sprites[2];
+            if (maskHealth[movementMaskIndex + 4] > 21) movement.sprite = movement_sprites[0];
+            if (maskHealth[movementMaskIndex + 4] < 21) movement.sprite = movement_sprites[1];
+            if (maskHealth[movementMaskIndex + 4] < 11) movement.sprite = movement_sprites[2];
+            
         }
 
         /// <summary>

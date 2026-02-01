@@ -1,4 +1,5 @@
 using System;
+using Dwayne.Masks;
 using UnityEngine;
 using Interfaces;
 using Managers;
@@ -7,7 +8,7 @@ public class PlayerHealth : MonoBehaviour, IDamagable
 {
     [Header("Health")]
     [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private float currentHealth;
+    [SerializeField] private float currentHealth = 100f;
 
     [Header("Audio")]
     [Tooltip("Play when player takes damage")]
@@ -17,6 +18,8 @@ public class PlayerHealth : MonoBehaviour, IDamagable
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
     public bool IsAlive => currentHealth > 0f;
+    
+    public MaskManager maskManager;
 
     public event Action<float, Vector3, object> OnDamaged;
     public event Action OnDeath;
@@ -28,23 +31,15 @@ public class PlayerHealth : MonoBehaviour, IDamagable
 
     public float TakeDamage(float amount, Vector3 hitPoint, Vector3 hitDirection, object source = null)
     {
-        if (!IsAlive || amount <= 0f)
-            return 0f;
+        //Debug.Log("TAKE DAMAGE CALLEDCALLED");
+        //if (!IsAlive || amount <= 0f) return 0f;
+        
+     
+        maskManager.TakeDamage(amount, hitPoint, hitDirection, source);
+        Debug.Log("MASK SHOULD HAVE BEEN CALLED");
+       
 
         float actualDamage = Mathf.Min(amount, currentHealth);
-        currentHealth -= actualDamage;
-
-        if (hitReceivedSound != null && SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX(hitReceivedSound);
-
-        Debug.Log($"Player took {actualDamage} damage. Current health: {currentHealth}");
-
-        OnDamaged?.Invoke(actualDamage, hitPoint, source);
-
-        if (currentHealth <= 0f)
-        {
-            Die();
-        }
 
         return actualDamage;
     }
