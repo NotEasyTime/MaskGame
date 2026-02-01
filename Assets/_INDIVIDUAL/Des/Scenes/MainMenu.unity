@@ -2408,7 +2408,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Credits
+  m_text: "Jam Team:\nDwayne Johnson\nDesiree Jones\nGabriel Parry\nConner Brunner\nJoseph
+    Demore\n\nMusic and Sound:\nMusic:\n\u2022 Game / Gaming / Video Game Music\n 
+    Source: Pixabay\n  https://pixabay.com/music/video-games-game-gaming-video-game-music-459876/\n\u2022
+    \"Stranger Things\" (Synthwave)\n  Music by Music_Unlimited\n  Source: Pixabay\n 
+    https://pixabay.com/music/synthwave-stranger-things-124008/\nSound Effects:\n\u2022
+    Sound Effects by Universfield\n  Source: Pixabay\n\u2022 Sound Effects by SUBMORITY\n 
+    Source: Pixabay\n\u2022 Sound Effects by Stepir44\n  Source: Pixabay\n\u2022
+    Sound Effects by Homemade_SFX\n  Source: Pixabay\n\u2022 Sound Effects by u_hyed0v3ux9\n 
+    Source: Pixabay\nAll audio assets downloaded from:\nPixabay (https://pixabay.com/)\nRoyalty-free
+    music and sound effects\n\n\n\n\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2438,7 +2447,7 @@ MonoBehaviour:
   m_fontSize: 53.9
   m_fontSizeBase: 53.9
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
