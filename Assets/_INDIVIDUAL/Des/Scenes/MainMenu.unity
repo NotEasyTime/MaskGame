@@ -2002,6 +2002,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7e4c8a2d1f59384b2e6d9a3c5f7e1b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Managers.StartGameButton
+  showDebug: 0
 --- !u!1 &478023488
 GameObject:
   m_ObjectHideFlags: 0
@@ -2201,6 +2202,7 @@ MonoBehaviour:
   - Level1
   - Level2
   - Level3
+  - LevelWin
   menuSceneNames:
   - MainMenu
   - PauseMenu
