@@ -101,7 +101,6 @@ namespace Player
         private Vector3 lastGroundVelocity;
         private float landingDelay;
         private bool jumpHeld;
-        private SlowEffect slowEffect;
 
         // Landing prediction
         private Vector3 predictedLandingPoint;
@@ -117,11 +116,6 @@ namespace Player
             rb.freezeRotation = true;
             rb.useGravity = false;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
-
-            // Get or add SlowEffect component
-            slowEffect = GetComponent<SlowEffect>();
-            if (slowEffect == null)
-                slowEffect = gameObject.AddComponent<SlowEffect>();
 
             PhysicsMaterial frictionless = new PhysicsMaterial("Frictionless")
             {
@@ -509,9 +503,6 @@ namespace Player
             Vector3 moveDir = transform.forward * moveInput.y + transform.right * moveInput.x;
             Vector3 currentHorizontalVel = Horizontal(rb.linearVelocity);
 
-            // Get slow multiplier (1.0 if not slowed)
-            float slowMultiplier = slowEffect != null ? slowEffect.GetMovementMultiplier() : 1f;
-
             float targetSpeed = isSprinting ? sprintSpeed : walkSpeed;
             float currentMax = isSprinting ? maxSprintSpeed : maxWalkSpeed;
 
@@ -520,10 +511,6 @@ namespace Player
                 targetSpeed = slideSpeed;
                 currentMax *= slideSpeedBoost;
             }
-
-            // Apply slow effect to all movement speeds
-            targetSpeed *= slowMultiplier;
-            currentMax *= slowMultiplier;
 
             if (moveInput.magnitude > 0)
             {

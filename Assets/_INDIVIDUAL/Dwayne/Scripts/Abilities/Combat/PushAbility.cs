@@ -18,6 +18,12 @@ namespace Dwayne.Abilities
         [SerializeField] float pushForce = 10f;
         [SerializeField] LayerMask hitMask = ~0;
 
+        [Header("Debug")]
+        [SerializeField] bool showDebugTrace = true;
+        [SerializeField] float debugTraceDuration = 0.5f;
+        [SerializeField] Color debugTraceColor = Color.cyan;
+        [SerializeField] Color debugHitColor = Color.red;
+
         protected override bool DoUse(GameObject user, Vector3 targetPosition)
         {
             Vector3 origin = user.transform.position + Vector3.up * 1f;
@@ -28,8 +34,32 @@ namespace Dwayne.Abilities
             if (direction.sqrMagnitude < 0.01f)
                 direction = user.transform.forward;
 
+            // Spawn VFX at user when ability activates
+            SpawnVFXAtUser(user);
+
             if (!Physics.Raycast(origin, direction, out RaycastHit hit, range, hitMask))
+            {
+                // Debug: draw trace line to max range (miss)
+                if (showDebugTrace)
+                    Debug.DrawLine(origin, origin + direction * range, debugTraceColor, debugTraceDuration);
+
+                // Spawn trail VFX even on miss (shows the attack direction)
+                SpawnTrailVFX(origin, Quaternion.LookRotation(direction));
                 return true;
+            }
+
+            // Debug: draw trace line to hit point
+            if (showDebugTrace)
+            {
+                Debug.DrawLine(origin, hit.point, debugTraceColor, debugTraceDuration);
+                // Draw a small cross at hit point
+                Debug.DrawLine(hit.point - Vector3.right * 0.3f, hit.point + Vector3.right * 0.3f, debugHitColor, debugTraceDuration);
+                Debug.DrawLine(hit.point - Vector3.up * 0.3f, hit.point + Vector3.up * 0.3f, debugHitColor, debugTraceDuration);
+                Debug.DrawLine(hit.point - Vector3.forward * 0.3f, hit.point + Vector3.forward * 0.3f, debugHitColor, debugTraceDuration);
+            }
+
+            // Spawn impact VFX at hit point
+            SpawnImpactVFX(hit.point, hit.normal);
 
             var damagable = hit.collider.GetComponent<IDamagable>();
             if (damagable != null && damagable.IsAlive)

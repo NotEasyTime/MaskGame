@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2037194234712947297}
-  - component: {fileID: -8183709613067795184}
+  - component: {fileID: 2897020177236905781}
   m_Layer: 0
-  m_Name: FireWeapon
+  m_Name: EarthWeapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-8183709613067795184
+--- !u!114 &2897020177236905781
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -55,7 +55,13 @@ MonoBehaviour:
   maxChargeTime: 1
   minChargeToFire: 0
   fullChargeDamageMultiplier: 1.5
-  fireAbility: {fileID: 5777128151034143781, guid: 09670b3119f82364481320992d57d20b, type: 3}
-  altFireAbility: {fileID: 1149501829899056174, guid: 858988d9cbabfed44b4b0f9a1579af26, type: 3}
+  fireAbility: {fileID: 3096345533277048725, guid: 50108592e8674504f9e70612ab68a2d5, type: 3}
+  altFireAbility: {fileID: 2019207519434019583, guid: 3c4a75f708e66ef41b7eabb9fde6ff4d, type: 3}
   owner: {fileID: 0}
-  useChargeDamage: 0
+  fallbackFireMode: 0
+  fallbackHitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  fallbackProjectilePrefab: {fileID: 0}
+  fallbackProjectileSpeed: 20
+  fallbackPoolName: 
