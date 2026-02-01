@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 using Dwayne.Interfaces;
 using Dwayne.Effects;
 using Element;
+using Interfaces;
 
 namespace Dwayne.Abilities
 {
@@ -44,7 +46,7 @@ namespace Dwayne.Abilities
         [SerializeField] protected float slowDuration = 2f;
 
         protected float lastUseTime = float.NegativeInfinity;
-
+        
         public virtual Element.Element ElementType => elementType;
         public virtual bool CanUse => CooldownRemaining <= 0f;
         public virtual float CooldownRemaining => Mathf.Max(0f, lastUseTime + cooldownDuration - Time.time);

@@ -51,7 +51,7 @@ MonoBehaviour:
   range: 100
   pelletsPerShot: 1
   spreadAngle: 0
-  useCharging: 0
+  useCharging: 1
   maxChargeTime: 1
   minChargeToFire: 0
   fullChargeDamageMultiplier: 1.5

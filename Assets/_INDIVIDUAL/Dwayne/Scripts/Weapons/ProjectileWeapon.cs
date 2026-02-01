@@ -1,17 +1,16 @@
 using UnityEngine;
-using Dwayne.Interfaces;
 using Dwayne.Abilities;
 
 namespace Dwayne.Weapons
 {
     /// <summary>
-    /// Weapon that spawns a projectile per shot using ProjectileAbility from fireAbility.
-    /// The fireAbility should be assigned a ProjectileAbility prefab.
+    /// Weapon that uses ProjectileAbility to spawn pooled projectiles.
+    /// The fireAbility should be a ProjectileAbility (assigned directly, not instantiated).
+    /// The ability handles spawning projectiles from the ObjectPoolManager.
     /// </summary>
     public class ProjectileWeapon : BaseWeapon
     {
         [Header("Projectile Settings")]
-        [SerializeField] protected float projectileSpeed = 50f;
         [SerializeField] protected bool useChargeDamage = true;
 
         protected override bool DoFire(Vector3 origin, Vector3 direction)
@@ -24,7 +23,7 @@ namespace Dwayne.Weapons
             // Use the fireAbility (should be a ProjectileAbility)
             if (fireAbility == null)
             {
-                Debug.LogWarning($"ProjectileWeapon '{name}' has no fireAbility assigned! Please assign a ProjectileAbility prefab.");
+                Debug.LogWarning($"ProjectileWeapon '{name}' has no fireAbility assigned! Please assign a ProjectileAbility.");
                 return false;
             }
 
@@ -32,28 +31,23 @@ namespace Dwayne.Weapons
             ProjectileAbility projectileAbility = fireAbility as ProjectileAbility;
             if (projectileAbility == null)
             {
-                Debug.LogError($"ProjectileWeapon '{name}' fireAbility '{fireAbility.name}' is not a ProjectileAbility! Please assign a ProjectileAbility component.");
+                Debug.LogError($"ProjectileWeapon '{name}' fireAbility '{fireAbility.name}' is not a ProjectileAbility!");
                 return false;
             }
 
-            // Calculate damage with charge multiplier
-            float damageAmount = damage;
-            if (useChargeDamage)
-                damageAmount *= Mathf.Lerp(1f, fullChargeDamageMultiplier, charge);
-
-            // Instantiate the projectile ability GameObject
-            GameObject projectileInstance = Instantiate(fireAbility.gameObject, origin, Quaternion.LookRotation(direction));
-            ProjectileAbility projectileComponent = projectileInstance.GetComponent<ProjectileAbility>();
-
-            if (projectileComponent != null)
+            // Check if ability can be used
+            if (!projectileAbility.CanUse)
             {
-                // Launch the projectile
-                projectileComponent.Launch(origin, direction, projectileSpeed, damageAmount, Owner);
-                return true;
+                return false;
             }
 
-            Debug.LogError($"ProjectileWeapon '{name}': Failed to get ProjectileAbility component from instantiated object!");
-            return false;
+            // Calculate target position from origin and direction
+            Vector3 targetPosition = origin + direction * range;
+
+            // Use the ability - it will spawn the projectile from the pool
+            bool success = projectileAbility.Use(Owner, targetPosition);
+
+            return success;
         }
     }
 }

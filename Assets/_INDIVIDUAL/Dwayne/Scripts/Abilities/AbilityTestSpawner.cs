@@ -26,19 +26,11 @@ namespace Dwayne.Testing
         [Tooltip("Layer mask for mouse raycast")]
         [SerializeField] private LayerMask raycastMask = ~0;
 
-        [Header("Projectile Settings")]
-        [Tooltip("Speed for projectile abilities")]
-        [SerializeField] private float projectileSpeed = 20f;
-
-        [Tooltip("Damage for projectile abilities")]
-        [SerializeField] private float projectileDamage = 25f;
-
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
 
         private GameObject spawnedAbility;
         private BaseAbility abilityComponent;
-        private ProjectileAbility projectileComponent;
 
         void Start()
         {
@@ -79,30 +71,16 @@ namespace Dwayne.Testing
             // Spawn the ability
             SpawnAbility();
 
-            // Check if it's a projectile ability
-            if (projectileComponent != null)
-            {
-                // Launch projectile ability
-                Vector3 origin = user.transform.position + Vector3.up * 1.5f;
-                Vector3 targetPosition = GetTargetPosition();
-                Vector3 direction = (targetPosition - origin).normalized;
-
-                projectileComponent.Launch(origin, direction, projectileSpeed, projectileDamage, user);
-
-                if (showDebugLogs)
-                {
-                    Debug.Log($"Projectile ability launched: {projectileComponent.GetType().Name} | Speed: {projectileSpeed} | Damage: {projectileDamage}");
-                }
-            }
-            // Otherwise use as regular ability
-            else if (abilityComponent != null)
+            // Use the ability (works for both regular and projectile abilities)
+            if (abilityComponent != null)
             {
                 Vector3 targetPosition = GetTargetPosition();
                 bool success = abilityComponent.Use(user, targetPosition);
 
                 if (showDebugLogs)
                 {
-                    Debug.Log($"Ability used: {success} | Cooldown: {abilityComponent.CooldownDuration}s | Target: {targetPosition}");
+                    string abilityType = abilityComponent is ProjectileAbility ? "Projectile Ability" : "Ability";
+                    Debug.Log($"{abilityType} used: {success} | {abilityComponent.GetType().Name} | Cooldown: {abilityComponent.CooldownDuration}s | Target: {targetPosition}");
                 }
             }
         }
@@ -121,8 +99,7 @@ namespace Dwayne.Testing
             // Spawn new ability
             spawnedAbility = Instantiate(abilityPrefab, user.transform.position, Quaternion.identity);
 
-            // Check for projectile ability first
-            projectileComponent = spawnedAbility.GetComponent<ProjectileAbility>();
+            // Get the BaseAbility component
             abilityComponent = spawnedAbility.GetComponent<BaseAbility>();
 
             if (abilityComponent == null)
@@ -131,7 +108,7 @@ namespace Dwayne.Testing
             }
             else if (showDebugLogs)
             {
-                string abilityType = projectileComponent != null ? "Projectile Ability" : "Ability";
+                string abilityType = abilityComponent is ProjectileAbility ? "Projectile Ability" : "Ability";
                 Debug.Log($"Spawned {abilityType}: {abilityComponent.GetType().Name} (Element: {abilityComponent.ElementType})");
             }
         }
