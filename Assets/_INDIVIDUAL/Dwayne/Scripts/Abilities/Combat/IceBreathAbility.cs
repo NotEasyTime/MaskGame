@@ -28,6 +28,10 @@ namespace Dwayne.Abilities
         [SerializeField] float regenDelay = 1f;
         [SerializeField] bool regenWhileChanneling = false;
 
+        [Header("VFX Follow")]
+        [Tooltip("Local offset from user (e.g. mouth height). VFX is parented to user so it follows.")]
+        [SerializeField] Vector3 vfxLocalOffset = new Vector3(0f, 1f, 0f);
+
         [Header("Debug")]
         [SerializeField] bool showDebugTrace = true;
 
@@ -115,12 +119,10 @@ namespace Dwayne.Abilities
                 ApplyBreathDamage();
             }
 
-            // Update VFX position/rotation
+            // Update VFX rotation to follow aim (position follows via parent)
             if (activeVFX != null)
             {
-                Vector3 origin = channelingUser.transform.position + Vector3.up * 1f;
                 Vector3 direction = GetChannelDirection();
-                activeVFX.transform.position = origin;
                 activeVFX.transform.rotation = Quaternion.LookRotation(direction);
             }
 
@@ -238,7 +240,7 @@ namespace Dwayne.Abilities
             channelTargetPosition = targetPosition;
             lastTickTime = Time.time;
 
-            // Spawn continuous VFX (activate and play so inactive/PixPlays prefabs show)
+            // Spawn continuous VFX parented to user so it follows
             if (spawnVFX != null)
             {
                 Vector3 origin = user.transform.position + Vector3.up * 1f;
@@ -247,6 +249,9 @@ namespace Dwayne.Abilities
                     : user.transform.forward;
                 activeVFX = Instantiate(spawnVFX, origin, Quaternion.LookRotation(direction));
                 activeVFX.SetActive(true);
+                activeVFX.transform.SetParent(user.transform);
+                activeVFX.transform.localPosition = vfxLocalOffset;
+                activeVFX.transform.rotation = Quaternion.LookRotation(direction);
                 TryPlayPixPlaysVfx(activeVFX, origin, direction, 1f, 999f);
             }
 

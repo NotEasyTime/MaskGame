@@ -69,7 +69,7 @@ MonoBehaviour:
   selfDotDamagePerTick: 2
   selfDotTickInterval: 0.5
   selfDotDuration: 2
-  range: 12
+  range: 50
   coneAngle: 35
   damagePerSecond: 12
   tickRate: 0.1

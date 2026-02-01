@@ -72,8 +72,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17562c3d9ccab9849987298d12b43156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Weapons.HitscanWeapon
-  fireCooldown: 0.5
-  magazineSize: 5
+  fireCooldown: 0.3
+  magazineSize: 10
   refillCooldown: 1.5
   damage: 10
   range: 100
