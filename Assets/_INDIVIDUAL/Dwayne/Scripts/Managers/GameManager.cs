@@ -663,9 +663,15 @@ namespace Managers
 
         /// <summary>
         /// Load the main menu scene. Call this from a "Back to Menu" or "Quit to Menu" button On Click.
+        /// Resets pause state and re-resolves SceneManager so Play works again after returning.
         /// </summary>
         public void LoadMainMenu()
         {
+            isPaused = false;
+            Time.timeScale = 1f;
+            if (sceneManager == null)
+                sceneManager = SceneManager.Instance;
+
             string sceneName = (menuSceneNames != null && menuSceneNames.Length > 0) ? menuSceneNames[0] : "MainMenu";
             if (sceneManager != null)
                 sceneManager.LoadScene(sceneName);
@@ -676,6 +682,7 @@ namespace Managers
         /// <summary>
         /// Load the first game level (e.g. Level1). Call this from the main menu Play button.
         /// Uses Game Scene Names: index 1 is the first level when index 0 is MainMenu.
+        /// Re-resolves SceneManager if it was lost after a scene change so Play works after returning to menu.
         /// </summary>
         public void StartFirstLevel()
         {
@@ -684,6 +691,11 @@ namespace Managers
                 Debug.LogWarning("GameManager: No game scenes configured. Assign Game Scene Names in the Inspector.");
                 return;
             }
+
+            if (sceneManager == null)
+                sceneManager = SceneManager.Instance;
+
+            Time.timeScale = 1f;
 
             // First level: use index 1 when index 0 is MainMenu, otherwise index 0
             int firstLevelIndex = gameSceneNames.Length > 1 ? 1 : 0;

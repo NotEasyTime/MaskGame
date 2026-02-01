@@ -1856,6 +1856,7 @@ GameObject:
   - component: {fileID: 467427627}
   - component: {fileID: 467427626}
   - component: {fileID: 467427629}
+  - component: {fileID: 467427630}
   m_Layer: 5
   m_Name: PlayButton
   m_TagString: Untagged
@@ -1989,6 +1990,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a45669cc904593347bf24bcbe5f16481, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneChanger
+--- !u!114 &467427630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467427624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e4c8a2d1f59384b2e6d9a3c5f7e1b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Managers.StartGameButton
 --- !u!1 &478023488
 GameObject:
   m_ObjectHideFlags: 0

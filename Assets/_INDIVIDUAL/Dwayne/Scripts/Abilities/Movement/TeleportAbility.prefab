@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.TeleportAbility
   elementType: 2
-  cooldownDuration: 1
+  cooldownDuration: 4
   spawnVFX: {fileID: 6924677203671909923, guid: d3c3ff9bcb24dc94ebe9e2d8f36749e9, type: 3}
   projectileVFX: {fileID: 0}
   impactVFX: {fileID: 0}
@@ -58,9 +58,9 @@ MonoBehaviour:
   canModifySpeed: 0
   speedMultiplier: 0.5
   speedDuration: 2
-  applySpeedToSelf: 0
+  applySpeedToSelf: 1
   selfSpeedMultiplier: 1.5
-  selfSpeedDuration: 2
+  selfSpeedDuration: 4
   canDoT: 0
   dotDamagePerTick: 5
   dotTickInterval: 0.5
@@ -69,7 +69,7 @@ MonoBehaviour:
   selfDotDamagePerTick: 2
   selfDotTickInterval: 0.5
   selfDotDuration: 2
-  maxDistance: 60
+  maxDistance: 30
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
