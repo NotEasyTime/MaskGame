@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.LightningBoltAbility
   elementType: 0
-  cooldownDuration: 1
+  cooldownDuration: 2
   spawnVFX: {fileID: 0}
   projectileVFX: {fileID: 0}
   impactVFX: {fileID: 0}
