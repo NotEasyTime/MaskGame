@@ -34,6 +34,13 @@ public class EnemySphere : MonoBehaviour, IDamagable
     [SerializeField] private float popHeight = 1.2f;
     [SerializeField] private float popDuration = 0.25f;
     [SerializeField] private float splitSpreadRadius = 2f;
+    
+    [SerializeField] private float teleportCheckHeight = 4f;
+    [SerializeField] private float teleportRadius = 1.5f;
+    [SerializeField] private float teleportCooldown = 1f;
+
+    private float lastTeleportTime;
+
 
     private NavMeshAgent agent;
     private Renderer rend;
@@ -64,9 +71,14 @@ public class EnemySphere : MonoBehaviour, IDamagable
 
     private void Update()
     {
-        if (agent != null && agent.isOnNavMesh && player != null)
+        if (agent == null || !agent.isOnNavMesh || player == null)
+            return;
+
+        agent.SetDestination(player.position);
+
+        if (ShouldTeleport())
         {
-            agent.SetDestination(player.position);
+            TryTeleport();
         }
 
         if (Input.GetKeyDown(KeyCode.K))
@@ -74,6 +86,36 @@ public class EnemySphere : MonoBehaviour, IDamagable
             TakeDamage(999, transform.position, Vector3.zero);
         }
     }
+    
+    bool ShouldTeleport()
+    {
+        if (Time.time - lastTeleportTime < teleportCooldown)
+            return false;
+
+        if (!agent.isOnNavMesh)
+            return false;
+
+        NavMeshPath path = new NavMeshPath();
+        agent.CalculatePath(player.position, path);
+
+        return path.status != NavMeshPathStatus.PathComplete;
+    }
+
+    
+    void TryTeleport()
+    {
+        if (NavMesh.SamplePosition(player.position, out NavMeshHit navHit, teleportRadius, NavMesh.AllAreas))
+        {
+            agent.enabled = false;
+            agent.Warp(navHit.position);
+            agent.enabled = true;
+
+            lastTeleportTime = Time.time;
+        }
+    }
+    
+
+
 
     // ==========================================
     // IDAMAGABLE IMPLEMENTATION
