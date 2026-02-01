@@ -494,8 +494,8 @@
                 },
                 {
                     "name": "",
-                    "id": "ce0a91b3-8028-49f7-8122-c62362781b43",
-                    "path": "",
+                    "id": "b711c2e1-be57-400e-864b-3d26501f307e",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -506,7 +506,7 @@
                 {
                     "name": "",
                     "id": "98a7f56a-5f4c-4631-84d9-1f7e03c0257c",
-                    "path": "",
+                    "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

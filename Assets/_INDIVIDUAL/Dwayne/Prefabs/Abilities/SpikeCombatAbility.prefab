@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6223322381924712386
+--- !u!1 &2822010952683786624
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 195829518169868590}
-  - component: {fileID: 8691471751710035324}
+  - component: {fileID: 8231824137007984766}
+  - component: {fileID: 3096345533277048725}
   m_Layer: 0
-  m_Name: TeleportAbility
+  m_Name: SpikeCombatAbility
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &195829518169868590
+--- !u!4 &8231824137007984766
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6223322381924712386}
+  m_GameObject: {fileID: 2822010952683786624}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.602, y: 0.301, z: 4.75097}
@@ -32,30 +32,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8691471751710035324
+--- !u!114 &3096345533277048725
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6223322381924712386}
+  m_GameObject: {fileID: 2822010952683786624}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a3bd635b33a7c14e88b90e980874f6b, type: 3}
+  m_Script: {fileID: 11500000, guid: 791dc5bb67a493a469df6e872a772724, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.TeleportAbility
-  elementType: 2
+  m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.EarthCombatAbility
+  elementType: 0
   cooldownDuration: 1
-  spawnVFX: {fileID: 0}
-  projectileVFX: {fileID: 0}
-  impactVFX: {fileID: 0}
-  trailVFX: {fileID: 0}
-  vfxLifetime: 2
-  canSlow: 0
-  slowMultiplier: 0.5
-  slowDuration: 2
-  maxDistance: 15
-  groundMask:
+  range: 12
+  radius: 3
+  damage: 20
+  hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  groundOnly: 1

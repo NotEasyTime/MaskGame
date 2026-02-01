@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439d825982e74544ab6306e78c84097f, type: 3}
   m_Name: IceMask
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Masks.Mask
-  weaponPrefab: {fileID: 0}
-  movementAbilityPrefab: {fileID: 0}
-  maskName: New Mask
+  weaponPrefab: {fileID: 8948289500178815609, guid: c511d57e8e96b3840b892dfcafe8c6ff, type: 3}
+  movementAbilityPrefab: {fileID: 1430679909345815488, guid: abc79668e463ac446a54fbee71302fdc, type: 3}
+  maskName: Ice

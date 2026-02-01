@@ -44,8 +44,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63bb105c121e94a488c4f179ba37ec1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Abilities.IceSkatesAbility
-  elementType: 0
+  elementType: 1
   cooldownDuration: 1
+  spawnVFX: {fileID: 0}
+  projectileVFX: {fileID: 0}
+  impactVFX: {fileID: 0}
+  trailVFX: {fileID: 0}
+  vfxLifetime: 2
+  canSlow: 0
+  slowMultiplier: 0.5
+  slowDuration: 2
   pathDuration: 4
   movementSpeedMultiplier: 1.5
   slowResistance: 0.6

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439d825982e74544ab6306e78c84097f, type: 3}
   m_Name: AirMask
   m_EditorClassIdentifier: Assembly-CSharp::Dwayne.Masks.Mask
-  weaponPrefab: {fileID: 0}
-  movementAbilityPrefab: {fileID: 0}
-  maskName: New Mask
+  weaponPrefab: {fileID: 8948289500178815609, guid: 8800656e15d98614bbb3cdd8bcbcb1e1, type: 3}
+  movementAbilityPrefab: {fileID: 162803839843656927, guid: c922b9ebef1996f4c9d2d067314de402, type: 3}
+  maskName: Air

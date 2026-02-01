@@ -25,6 +25,26 @@ namespace Dwayne.Abilities
         [Tooltip("Destroy projectile on expire")]
         [SerializeField] protected bool destroyOnExpire = true;
 
+        [Header("Homing")]
+        [Tooltip("Enable homing towards nearest target")]
+        [SerializeField] protected bool homing = false;
+
+        [Tooltip("How strongly the projectile homes (higher = tighter turns)")]
+        [SerializeField] protected float homingStrength = 5f;
+
+        [Tooltip("Maximum distance to search for homing targets")]
+        [SerializeField] protected float homingRange = 30f;
+
+        [Tooltip("Layer mask for homing targets")]
+        [SerializeField] protected LayerMask homingTargetMask = ~0;
+
+        [Header("Piercing")]
+        [Tooltip("Can projectile pierce through targets")]
+        [SerializeField] protected bool piercing = false;
+
+        [Tooltip("Maximum number of targets to pierce (0 = infinite)")]
+        [SerializeField] protected int maxPierceCount = 3;
+
         protected float damage;
         protected float speed;
         protected Vector3 direction;
@@ -32,6 +52,8 @@ namespace Dwayne.Abilities
         protected float spawnTime;
         protected Rigidbody rb;
         protected bool launched;
+        protected int pierceCounter = 0;
+        protected GameObject homingTarget;
     
 
         public virtual float Damage => damage;
@@ -92,6 +114,12 @@ namespace Dwayne.Abilities
                 return;
             }
 
+            // Apply homing
+            if (homing && rb != null)
+            {
+                ApplyHoming();
+            }
+
             // Apply gravity
             if (gravity != 0f && rb != null)
             {
@@ -101,6 +129,86 @@ namespace Dwayne.Abilities
                 if (rb.linearVelocity.sqrMagnitude > 0.01f)
                     transform.forward = rb.linearVelocity.normalized;
             }
+        }
+
+        /// <summary>
+        /// Applies homing behavior to steer towards the nearest target.
+        /// </summary>
+        protected virtual void ApplyHoming()
+        {
+            // Find or update homing target
+            if (homingTarget == null || !IsValidHomingTarget(homingTarget))
+            {
+                homingTarget = FindNearestHomingTarget();
+            }
+
+            if (homingTarget == null)
+                return;
+
+            // Calculate direction to target
+            Vector3 toTarget = (homingTarget.transform.position - transform.position).normalized;
+
+            // Steer towards target
+            Vector3 currentVelocity = rb.linearVelocity;
+            Vector3 desiredVelocity = toTarget * speed;
+            Vector3 steer = Vector3.Lerp(currentVelocity, desiredVelocity, homingStrength * Time.deltaTime);
+
+            rb.linearVelocity = steer.normalized * speed;
+
+            // Update forward direction
+            if (rb.linearVelocity.sqrMagnitude > 0.01f)
+                transform.forward = rb.linearVelocity.normalized;
+        }
+
+        /// <summary>
+        /// Finds the nearest valid homing target within range.
+        /// </summary>
+        protected virtual GameObject FindNearestHomingTarget()
+        {
+            Collider[] colliders = Physics.OverlapSphere(transform.position, homingRange, homingTargetMask);
+            GameObject nearest = null;
+            float nearestDistance = float.MaxValue;
+
+            foreach (Collider col in colliders)
+            {
+                // Skip owner
+                if (col.gameObject == projectileOwner)
+                    continue;
+
+                // Check if valid target (has IDamagable and is alive)
+                var damageable = col.GetComponent<IDamagable>();
+                if (damageable == null || !damageable.IsAlive)
+                    continue;
+
+                float distance = Vector3.Distance(transform.position, col.transform.position);
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearest = col.gameObject;
+                }
+            }
+
+            return nearest;
+        }
+
+        /// <summary>
+        /// Checks if a homing target is still valid.
+        /// </summary>
+        protected virtual bool IsValidHomingTarget(GameObject target)
+        {
+            if (target == null)
+                return false;
+
+            // Check if still in range
+            if (Vector3.Distance(transform.position, target.transform.position) > homingRange)
+                return false;
+
+            // Check if still alive
+            var damageable = target.GetComponent<IDamagable>();
+            if (damageable != null && !damageable.IsAlive)
+                return false;
+
+            return true;
         }
 
         /// <summary>
@@ -128,7 +236,22 @@ namespace Dwayne.Abilities
                 damageable.TakeDamage(damage, point, -direction, projectileOwner);
             }
 
-            // Destroy projectile on hit if configured
+            // Handle piercing
+            if (piercing)
+            {
+                pierceCounter++;
+
+                // Destroy if we've reached max pierce count (0 = infinite)
+                if (maxPierceCount > 0 && pierceCounter >= maxPierceCount)
+                {
+                    launched = false;
+                    Destroy(gameObject);
+                }
+                // Otherwise, continue flying
+                return;
+            }
+
+            // Destroy projectile on hit if configured (non-piercing)
             if (destroyOnHit)
             {
                 launched = false;

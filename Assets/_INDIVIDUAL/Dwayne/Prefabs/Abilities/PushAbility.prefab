@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6757883563877934278}
   - component: {fileID: 1321085287342567240}
   m_Layer: 0
-  m_Name: AirCombatAbility
+  m_Name: PushAbility
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
