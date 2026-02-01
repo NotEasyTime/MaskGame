@@ -476,6 +476,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2413077888551306978, guid: 3036e2701955878488e9ba721c23f597, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5067145087205581684}
+    - targetCorrespondingSourceObject: {fileID: 2413077888551306978, guid: 3036e2701955878488e9ba721c23f597, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5067145087205581685}
     - targetCorrespondingSourceObject: {fileID: 1478779783850454402, guid: 3036e2701955878488e9ba721c23f597, type: 3}
       insertIndex: -1
       addedObject: {fileID: 434215781}
@@ -497,6 +500,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae5b6057b4cc8974a93a8aedb7bd9cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Managers.ResumeGameButton
+--- !u!114 &5067145087205581685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5067145087205581683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9993bd45ff203a343b1d87ea5b562881, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Managers.ContinueGameButton
+  showDebug: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

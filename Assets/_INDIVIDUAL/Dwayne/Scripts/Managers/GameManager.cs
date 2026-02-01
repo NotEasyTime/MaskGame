@@ -662,15 +662,39 @@ namespace Managers
         }
 
         /// <summary>
-        /// Load the main menu scene. Call this from a "Back to Menu" or "Quit to Menu" button On Click.
-        /// Resets pause state and re-resolves SceneManager so Play works again after returning.
+        /// Reset GameManager to initial / main menu state (e.g. after quitting to menu).
+        /// Clears pause, player reference, re-resolves managers so Play works again.
         /// </summary>
-        public void LoadMainMenu()
+        public void Reset()
         {
             isPaused = false;
             Time.timeScale = 1f;
-            if (sceneManager == null)
-                sceneManager = SceneManager.Instance;
+            IsGameReady = false;
+            isInitializingScene = false;
+
+            pauseMenuSceneLoaded = false;
+            if (pauseMenuInstance != null)
+            {
+                Destroy(pauseMenuInstance);
+                pauseMenuInstance = null;
+            }
+
+            playerInstance = null;
+
+            // Re-resolve managers (refs can be stale/destroyed after scene unload)
+            sceneManager = SceneManager.Instance;
+            objectPoolManager = Object.FindFirstObjectByType<ObjectPoolManager>();
+            musicManager = Object.FindFirstObjectByType<MusicManager>();
+            soundManager = Object.FindFirstObjectByType<SoundManager>();
+        }
+
+        /// <summary>
+        /// Load the main menu scene. Call this from a "Back to Menu" or "Quit to Menu" button On Click.
+        /// Calls Reset() so we're back to initial load state and Play works again.
+        /// </summary>
+        public void LoadMainMenu()
+        {
+            Reset();
 
             string sceneName = (menuSceneNames != null && menuSceneNames.Length > 0) ? menuSceneNames[0] : "MainMenu";
             if (sceneManager != null)

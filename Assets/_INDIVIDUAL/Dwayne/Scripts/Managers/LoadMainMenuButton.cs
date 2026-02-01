@@ -10,16 +10,30 @@ namespace Managers
     /// </summary>
     public class LoadMainMenuButton : MonoBehaviour
     {
+        [Header("Debug")]
+        [SerializeField] bool showDebug = false;
+
         public void LoadMainMenu()
         {
+            if (showDebug)
+                Debug.Log("[LoadMainMenuButton] Load main menu pressed.");
+
             GameManager gm = GameManager.Instance;
             if (gm == null)
                 gm = Object.FindFirstObjectByType<GameManager>();
 
             if (gm != null)
+            {
+                if (showDebug)
+                    Debug.Log("[LoadMainMenuButton] GameManager found, calling LoadMainMenu().");
                 gm.LoadMainMenu();
+            }
             else
+            {
+                if (showDebug)
+                    Debug.LogWarning("[LoadMainMenuButton] No GameManager found, loading MainMenu via SceneManager.");
                 UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+            }
         }
     }
 }

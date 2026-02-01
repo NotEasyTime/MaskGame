@@ -4983,18 +4983,6 @@ MonoBehaviour:
     maxSize: 100
     allowExpansion: 1
     container: {fileID: 0}
-  - prefab: {fileID: 1268480326322550367, guid: 72ebe1f70a68f6248a42b1005064af49, type: 3}
-    poolName: 
-    preloadCount: 50
-    maxSize: 100
-    allowExpansion: 1
-    container: {fileID: 0}
-  - prefab: {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
-    poolName: 
-    preloadCount: 10
-    maxSize: 50
-    allowExpansion: 1
-    container: {fileID: 0}
   - prefab: {fileID: 2672390342802542358, guid: c181dd59e627d4f61a04d0214211ac8d, type: 3}
     poolName: 
     preloadCount: 10

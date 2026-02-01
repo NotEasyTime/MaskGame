@@ -11,16 +11,26 @@ namespace Managers
     /// </summary>
     public class StartGameButton : MonoBehaviour
     {
+        [Header("Debug")]
+        [SerializeField] bool showDebug = false;
+
         public void StartGame()
         {
+            if (showDebug)
+                Debug.Log("[StartGameButton] Play pressed.");
+
             GameManager gm = GameManager.Instance;
             if (gm == null)
                 gm = Object.FindFirstObjectByType<GameManager>();
 
             if (gm != null)
+            {
+                if (showDebug)
+                    Debug.Log("[StartGameButton] GameManager found, calling StartFirstLevel().");
                 gm.StartFirstLevel();
+            }
             else
-                Debug.LogWarning("StartGameButton: No GameManager found. Assign Game Scene Names on a GameManager in the scene.");
+                Debug.LogWarning("[StartGameButton] No GameManager found. Assign Game Scene Names on a GameManager in the scene.");
         }
     }
 }
