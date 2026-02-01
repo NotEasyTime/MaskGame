@@ -54,7 +54,9 @@ namespace Managers
         public System.Action OnGameEnd;
         public System.Action OnGamePaused;
         public System.Action OnGameResumed;
-
+        
+        private int sceneIndex = 0;
+        
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -428,6 +430,12 @@ namespace Managers
         {
             killCount++;
             OnKillCountChanged?.Invoke(killCount);
+            if (killCount >= 10)
+            {
+                killCount = 0;
+                if(sceneIndex < gameSceneNames.Length) ++sceneIndex;
+                Managers.SceneManager.Instance.LoadScene(gameSceneNames[sceneIndex]);
+            }
         }
     }
 }

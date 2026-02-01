@@ -155,5 +155,6 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
         StopAllCoroutines();
         Destroy(gameObject);
         Enemies.EnemySpawner.Instance.OnEnemyDied();
+        Managers.GameManager.Instance.OnEnemyKilled();
     }
 }

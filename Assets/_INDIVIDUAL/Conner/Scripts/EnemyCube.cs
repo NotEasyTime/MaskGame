@@ -116,6 +116,7 @@ public class EnemyCube : MonoBehaviour, IDamagable
             currentHealth = 0;
             Die();
             Enemies.EnemySpawner.Instance.OnEnemyDied();
+            Managers.GameManager.Instance.OnEnemyKilled();
         }
 
         return amount;

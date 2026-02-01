@@ -115,6 +115,7 @@ public class EnemySphere : MonoBehaviour, IDamagable
         } 
         
         Enemies.EnemySpawner.Instance.OnEnemyDied();
+        Managers.GameManager.Instance.OnEnemyKilled();
 
         Destroy(gameObject);
 

@@ -1388,7 +1388,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1508916600}
-  - component: {fileID: 1508916599}
+  - component: {fileID: 1508916601}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1396,32 +1396,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1508916599
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1508916598}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f2805efd6122734aba163d08492e7a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Managers.GameManager
-  playerPrefab: {fileID: 1382737036237916155, guid: 9580e5bd7c6bb401d93bbb6cd2d2b5bf, type: 3}
-  playerSpawnPoint: {fileID: 1179936236}
-  enemyPrefabs: []
-  enemySpawnPoints: []
-  enemySpawnRate: 2
-  maxEnemies: 100
-  objectPoolManagerPrefab: {fileID: 1552742104}
-  sceneManagerPrefab: {fileID: 0}
-  gameSceneNames:
-  - Level1
-  menuSceneNames:
-  - MainMenu
-  isPaused: 0
-  score: 0
 --- !u!4 &1508916600
 Transform:
   m_ObjectHideFlags: 0
@@ -1437,6 +1411,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1508916601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508916598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f2805efd6122734aba163d08492e7a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Managers.GameManager
+  playerPrefab: {fileID: 1382737036237916155, guid: 9580e5bd7c6bb401d93bbb6cd2d2b5bf, type: 3}
+  playerSpawnPoint: {fileID: 1179936236}
+  enemyPrefabs: []
+  enemySpawnPoints: []
+  enemySpawnRate: 5
+  maxEnemies: 100
+  objectPoolManagerPrefab: {fileID: 0}
+  sceneManagerPrefab: {fileID: 0}
+  gameSceneNames:
+  - Level1
+  - Level2
+  - Level3
+  menuSceneNames:
+  - MainMenu
+  isPaused: 0
+  score: 0
 --- !u!1 &1536153606
 GameObject:
   m_ObjectHideFlags: 0
