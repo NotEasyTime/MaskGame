@@ -146,7 +146,7 @@ namespace Player
                 rb.linearDamping = 0.05f;
 
             // Jump buffer logic (for single press jumps)
-            if (jumpBufferCounter > 0 && coyoteCounter > 0 && !isSliding)
+            if (jumpBufferCounter > 0 && coyoteCounter > 0 && !isSliding && canJump)
             {
                 Jump();
             }
@@ -271,6 +271,15 @@ namespace Player
             {
                 StartGroundSlam();
             }
+        }
+
+        /// <summary>
+        /// Called by Input System when the Pause action (e.g. Escape) is pressed. Toggles pause and PauseMenu in game.
+        /// </summary>
+        public void OnPause(InputValue value)
+        {
+            if (value.isPressed)
+                Managers.GameManager.Instance?.TogglePauseInGame();
         }
 
         private void OnCollisionStay(Collision collision)
@@ -596,6 +605,7 @@ namespace Player
 
             jumpBufferCounter = 0f;
             coyoteCounter = 0f;
+            canJump = false;
             isGrounded = false;
             landingDelay = 0f;
         }

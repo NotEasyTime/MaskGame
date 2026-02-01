@@ -5,6 +5,7 @@ using Dwayne.Interfaces;
 using Dwayne.Effects;
 using Element;
 using Interfaces;
+using Managers;
 
 namespace Dwayne.Abilities
 {
@@ -38,6 +39,14 @@ namespace Dwayne.Abilities
 
         [Tooltip("Scale impact VFX by (AOE radius * this). e.g. 0.5 = radius 10 → scale 5. Set 0 to use prefab scale only.")]
         [SerializeField] protected float impactVFXScaleFactor = 0.5f;
+
+        [Header("Audio")]
+        [Tooltip("Sound when ability is cast/fired")]
+        [SerializeField] protected AudioClip castSound;
+        [Tooltip("Sound on impact/hit")]
+        [SerializeField] protected AudioClip impactSound;
+        [Tooltip("Optional: sound when ability completes (e.g. channel end)")]
+        [SerializeField] protected AudioClip completionSound;
 
         [Header("Speed Modifier - Targets")]
         [Tooltip("Can this ability apply speed modifier to targets?")]
@@ -113,7 +122,10 @@ namespace Dwayne.Abilities
             lastUser = user;
             bool used = DoUse(user, targetPosition);
             if (used)
+            {
                 lastUseTime = Time.time;
+                PlayCastSound();
+            }
             return used;
         }
 
@@ -127,6 +139,9 @@ namespace Dwayne.Abilities
             return DoUse(user, targetPosition);
         }
 
+        /// <summary>True when this ability is currently channeling (e.g. ice breath). Used to cancel on button release or when input is lost.</summary>
+        public virtual bool IsChanneled => false;
+
         public virtual void Cancel()
         {
             // Override in channeled abilities to interrupt.
@@ -137,8 +152,29 @@ namespace Dwayne.Abilities
         /// </summary>
         protected virtual void SpawnVFXAtUser(GameObject user)
         {
-            if (spawnVFX != null && user != null)
-                SpawnVFX(spawnVFX, user.transform.position, user.transform.rotation);
+            if (spawnVFX == null || user == null)
+                return;
+            GameObject vfx = SpawnVFX(spawnVFX, user.transform.position, user.transform.rotation);
+            if (vfx != null)
+                TryPlayPixPlaysVfx(vfx, user.transform.position, user.transform.forward, 1f, vfxLifetime > 0f ? vfxLifetime : 2f);
+        }
+
+        protected virtual void PlayCastSound()
+        {
+            if (castSound != null && SoundManager.Instance != null)
+                SoundManager.Instance.PlaySFX(castSound);
+        }
+
+        protected virtual void PlayImpactSound()
+        {
+            if (impactSound != null && SoundManager.Instance != null)
+                SoundManager.Instance.PlaySFX(impactSound);
+        }
+
+        protected virtual void PlayCompletionSound()
+        {
+            if (completionSound != null && SoundManager.Instance != null)
+                SoundManager.Instance.PlaySFX(completionSound);
         }
 
         /// <summary>
@@ -149,6 +185,7 @@ namespace Dwayne.Abilities
         /// <param name="aoRadius">AOE radius of the ability (e.g. explosion radius). When &gt; 0 and impactVFXScaleFactor &gt; 0, scales the VFX so it matches the AOE size. Also passed to PixPlays LocationVfx if present.</param>
         protected virtual void SpawnImpactVFX(Vector3 position, Vector3 normal, float aoRadius = 0f)
         {
+            PlayImpactSound();
             if (impactVFX == null)
                 return;
 
@@ -160,15 +197,15 @@ namespace Dwayne.Abilities
                 : 1f;
             GameObject vfx = SpawnVFX(impactVFX, position, rotation, scale);
 
-            // If impact prefab uses PixPlays LocationVfx/BaseVfx, drive it with radius so AOE size matches
-            if (vfx != null && aoRadius > 0f)
-                TryPlayPixPlaysVfx(vfx, position, normal, aoRadius, vfxLifetime > 0f ? vfxLifetime : 2f);
+            // If impact prefab uses PixPlays BaseVfx, call Play so the effect runs (use radius 1 when no AOE)
+            if (vfx != null)
+                TryPlayPixPlaysVfx(vfx, position, normal, aoRadius > 0f ? aoRadius : 1f, vfxLifetime > 0f ? vfxLifetime : 2f);
         }
 
         /// <summary>
-        /// If the spawned VFX has PixPlays BaseVfx, call Play(VfxData) with radius so LocationVfx (e.g. WindBlast) scales correctly.
+        /// If the spawned VFX has PixPlays BaseVfx, call Play(VfxData) so the effect runs. Direction is used as target offset (position + direction * 2).
         /// </summary>
-        private static void TryPlayPixPlaysVfx(GameObject vfx, Vector3 position, Vector3 normal, float radius, float duration)
+        protected static void TryPlayPixPlaysVfx(GameObject vfx, Vector3 position, Vector3 directionOrNormal, float radius, float duration)
         {
             try
             {
@@ -186,7 +223,8 @@ namespace Dwayne.Abilities
                 if (ctor == null)
                     return;
 
-                object vfxData = ctor.Invoke(new object[] { position, position + normal * 2f, duration, radius });
+                Vector3 target = position + (directionOrNormal.sqrMagnitude > 0.01f ? directionOrNormal : Vector3.forward) * 2f;
+                object vfxData = ctor.Invoke(new object[] { position, target, duration, radius });
                 MethodInfo play = baseVfxType.GetMethod("Play", new[] { vfxDataType });
                 if (play != null)
                 {
@@ -220,6 +258,7 @@ namespace Dwayne.Abilities
                 return null;
 
             GameObject vfx = Instantiate(vfxPrefab, position, rotation);
+            vfx.SetActive(true); // Many VFX prefabs (e.g. PixPlays FireballCast) have root inactive; ensure they play
             if (scale != 1f)
                 vfx.transform.localScale = Vector3.one * scale;
 

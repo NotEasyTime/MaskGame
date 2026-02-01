@@ -18,6 +18,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Gameplay.unity
     guid: 198c44e772055e64988d4fcd9d792669
   - enabled: 1
+    path: Assets/_INDIVIDUAL/Des/Scenes/MainMenu.unity
+    guid: b6091c7d5dddea34ba2c68113be79fdb
+  - enabled: 1
+    path: Assets/_INDIVIDUAL/Des/Scenes/PauseMenu.unity
+    guid: 20efbb66118d0d044bfc07ca18209ef2
+  - enabled: 1
     path: Assets/_INDIVIDUAL/Des/Scenes/Level1.unity
     guid: 90d1998e25101a44d8f54013286ce5c1
   - enabled: 1

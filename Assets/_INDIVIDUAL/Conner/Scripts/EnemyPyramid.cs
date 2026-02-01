@@ -33,6 +33,10 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
     [SerializeField] private float knockbackDistance = 2f;
     [SerializeField] private float knockbackDuration = 0.2f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip attackSound;
+    [SerializeField] private AudioClip hitReceivedSound;
+
     private NavMeshAgent agent;
     private Renderer rend;
     private float baseSpeed;
@@ -160,6 +164,8 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
         if (!IsAlive) return 0;
 
         currentHealth -= amount;
+        if (hitReceivedSound != null && Managers.SoundManager.Instance != null)
+            Managers.SoundManager.Instance.PlaySFX(hitReceivedSound);
         OnDamaged?.Invoke(amount, hitPoint, source);
 
         // Apply knockback using the hit direction
@@ -203,6 +209,8 @@ public class EnemyPyramid : MonoBehaviour, IDamagable
 
     private void Die()
     {
+        if (attackSound != null && Managers.SoundManager.Instance != null)
+            Managers.SoundManager.Instance.PlaySFX(attackSound);
         OnDeath?.Invoke();
         StopAllCoroutines();
         Destroy(gameObject);

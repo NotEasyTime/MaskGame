@@ -54,6 +54,9 @@ namespace Dwayne.Abilities
         /// <summary>Is the ability currently channeling?</summary>
         public bool IsChanneling => isChanneling;
 
+        /// <summary>True when channeling; allows input/manager to cancel on release.</summary>
+        public override bool IsChanneled => isChanneling;
+
         /// <summary>Can the ability be used (has resource and off cooldown)?</summary>
         public override bool CanUse => base.CanUse && currentResource > 0f;
 

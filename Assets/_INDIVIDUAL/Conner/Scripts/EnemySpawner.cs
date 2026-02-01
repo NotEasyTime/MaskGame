@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Managers;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -38,7 +39,14 @@ public class EnemySpawner : MonoBehaviour
     {
         spawnedEnemies.RemoveAll(e => e == null);
 
-        if (spawnedEnemies.Count >= maxEnemies)
+        int cap = maxEnemies;
+        if (GameManager.Instance != null)
+        {
+            if (GameManager.Instance.GetCurrentEnemyCount() >= GameManager.Instance.GetMaxEnemies())
+                return;
+            cap = Mathf.Min(cap, GameManager.Instance.GetMaxEnemies());
+        }
+        if (spawnedEnemies.Count >= cap)
             return;
 
         float randomValue = Random.value; 
@@ -71,5 +79,6 @@ public class EnemySpawner : MonoBehaviour
 
         GameObject spawned = Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
         spawnedEnemies.Add(spawned);
+        GameManager.Instance?.NotifyEnemySpawned();
     }
 }

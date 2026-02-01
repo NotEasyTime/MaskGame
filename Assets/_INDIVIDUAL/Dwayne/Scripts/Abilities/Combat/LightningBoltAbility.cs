@@ -188,8 +188,10 @@ namespace Dwayne.Abilities
                 SpawnVFX(projectileVFX, origin, Quaternion.LookRotation(direction));
             }
 
-            // Spawn the lightning bolt projectile with charged stats
-            SpawnChargedProjectile(chargingUser, origin, direction, damageMultiplier, speedMultiplier);
+            // Spawn the lightning bolt projectile with charged stats (pass impact VFX so it explodes on hit)
+            BaseProjectile projectile = SpawnChargedProjectile(chargingUser, origin, direction, damageMultiplier, speedMultiplier);
+            if (projectile != null && impactVFX != null)
+                projectile.SetImpactVFX(impactVFX, vfxLifetime > 0f ? vfxLifetime : 2f);
 
             // Apply effects to self if configured
             lastUser = chargingUser;
@@ -264,25 +266,37 @@ namespace Dwayne.Abilities
 
         /// <summary>
         /// Gets the target position based on camera view (screen center).
+        /// Ignores the charging user so the bolt lands where we aim, not on the player.
         /// </summary>
         private Vector3 GetTargetPosition()
         {
             Camera mainCam = Camera.main;
             if (mainCam != null)
             {
-                // Raycast from screen center (crosshair)
                 Ray ray = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-                if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+                RaycastHit[] hits = Physics.RaycastAll(ray, 500f);
+                float bestDistance = float.MaxValue;
+                Vector3 bestPoint = ray.origin + ray.direction * 50f;
+
+                foreach (RaycastHit hit in hits)
                 {
-                    return hit.point;
+                    if (hit.collider == null || hit.distance < 0.01f)
+                        continue;
+                    // Ignore the charging user and their children (so we don't target ourselves)
+                    if (chargingUser != null && (hit.collider.gameObject == chargingUser || hit.collider.transform.IsChildOf(chargingUser.transform)))
+                        continue;
+                    if (hit.distance < bestDistance)
+                    {
+                        bestDistance = hit.distance;
+                        bestPoint = hit.point;
+                    }
                 }
-                // No hit - return point at default distance
-                return ray.origin + ray.direction * 50f;
+
+                return bestPoint;
             }
 
-            // Fallback to position in front of user
             if (chargingUser != null)
-                return chargingUser.transform.position + chargingUser.transform.forward * 10f;
+                return chargingUser.transform.position + chargingUser.transform.forward * 50f;
 
             return Vector3.zero;
         }

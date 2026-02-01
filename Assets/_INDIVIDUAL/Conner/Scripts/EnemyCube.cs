@@ -35,6 +35,10 @@ public class EnemyCube : MonoBehaviour, IDamagable
     [SerializeField] private float knockbackDistance = 2f;
     [SerializeField] private float knockbackDuration = 0.2f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip attackSound;
+    [SerializeField] private AudioClip hitReceivedSound;
+
     private NavMeshAgent agent;
     private float fireCooldown = 0f;
     private bool playerInRange = false;
@@ -99,6 +103,9 @@ public class EnemyCube : MonoBehaviour, IDamagable
         fireCooldown -= Time.deltaTime;
         if (fireCooldown <= 0f)
         {
+            if (attackSound != null && Managers.SoundManager.Instance != null)
+                Managers.SoundManager.Instance.PlaySFX(attackSound);
+
             Vector3 spawnPos = transform.position + transform.TransformDirection(spawnOffset);
             Vector3 targetCenter = player.position + Vector3.up;
             Vector3 fireDirection = (targetCenter - spawnPos).normalized;
@@ -139,6 +146,8 @@ public class EnemyCube : MonoBehaviour, IDamagable
         if (!IsAlive) return 0;
 
         currentHealth -= amount;
+        if (hitReceivedSound != null && Managers.SoundManager.Instance != null)
+            Managers.SoundManager.Instance.PlaySFX(hitReceivedSound);
 
         // Trigger the damaged event for UI or FX systems
         OnDamaged?.Invoke(amount, hitPoint, source);

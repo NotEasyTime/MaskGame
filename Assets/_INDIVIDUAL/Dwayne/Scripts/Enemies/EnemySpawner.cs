@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Managers;
 
 namespace Enemies
 {
@@ -35,7 +36,9 @@ namespace Enemies
 
         private void Update()
         {
-            if (!isSpawning || currentEnemyCount >= maxEnemies) return;
+            if (!isSpawning) return;
+            int cap = GameManager.Instance != null ? GameManager.Instance.GetMaxEnemies() : maxEnemies;
+            if (currentEnemyCount >= cap || (GameManager.Instance != null && GameManager.Instance.GetCurrentEnemyCount() >= cap)) return;
             if (Time.time < nextSpawnTime) return;
 
             SpawnEnemy();
@@ -51,6 +54,7 @@ namespace Enemies
 
             Instantiate(prefab, spawnPosition, Quaternion.identity);
             currentEnemyCount++;
+            GameManager.Instance?.NotifyEnemySpawned();
         }
 
         private Vector3 GetSpawnPosition()

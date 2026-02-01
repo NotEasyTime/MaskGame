@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Managers;
 
 public class MouseLook : MonoBehaviour
 {
@@ -29,11 +30,18 @@ public class MouseLook : MonoBehaviour
 
     public void OnLook(InputValue value)
     {
+        if (GameManager.Instance != null && GameManager.Instance.isPaused) return;
         lookBuffer += value.Get<Vector2>();
     }
 
     void LateUpdate()
     {
+        if (GameManager.Instance != null && GameManager.Instance.isPaused)
+        {
+            lookBuffer = Vector2.zero;
+            return;
+        }
+
         // 1. INPUT PROCESSING
         float mouseX = lookBuffer.x * mouseSensitivity;
         float mouseY = lookBuffer.y * mouseSensitivity;
