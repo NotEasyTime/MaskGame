@@ -73,6 +73,12 @@ namespace Dwayne.Weapons
         /// <summary>Owner passed to abilities (user). Set explicitly or inferred from hierarchy.</summary>
         public virtual GameObject Owner => owner != null ? owner : (transform.root != null ? transform.root.gameObject : gameObject);
 
+        /// <summary>The fire ability assigned to this weapon.</summary>
+        public virtual BaseAbility FireAbility => fireAbility;
+
+        /// <summary>The alt-fire ability assigned to this weapon.</summary>
+        public virtual BaseAbility AltFireAbility => altFireAbility;
+
         /// <summary>Set the wielder/owner for ability calls. Call from character when equipping.</summary>
         public virtual void SetOwner(GameObject wielder) => owner = wielder;
 
